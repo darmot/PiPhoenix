@@ -1,4 +1,4 @@
-from PS2Controller_h import *
+from PS2ControllerConstants import *
 from wiringpi import *
 #from wiringpispi import *
 

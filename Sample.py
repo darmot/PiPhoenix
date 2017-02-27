@@ -14,7 +14,7 @@
 ##
 import sys
 import wiringpi
-from PS2Controller_h import *
+from PS2ControllerConstants import *
 from PS2Controller import *
 
 #include <stdio.h>
