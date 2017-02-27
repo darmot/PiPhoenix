@@ -81,12 +81,12 @@ class PiPS2:
             self.transmitBytes(enterConfigMode)
 
             # Set mode to analog mode and lock it there.
-            self.transmitBytes(set_mode_analog_lock)
+            self.transmitBytes(setModeAnalogLockMode)
 
             #delay(CMD_DELAY);
 
             # Return all pressures
-            #self.transmitBytes(config_AllPressure)
+            #self.transmitBytes(setAllPressureMode)
             # Exit config mode.
             self.transmitBytes(exitConfigMode)
 
@@ -265,9 +265,9 @@ class PiPS2:
         for initAttempts in range(1, MAX_INIT_ATTEMPT):
             print("attempt #%i" % initAttempts)
             self.transmitBytes(enterConfigMode)
-            self.transmitBytes(set_mode_analog_lock)
+            self.transmitBytes(setModeAnalogLockMode)
             if self._controllerMode == ALLPRESSUREMODE:
-                self.transmitBytes(config_AllPressure)
+                self.transmitBytes(setAllPressureMode)
             self.transmitBytes(exitConfigMode)
             self.readPS2()
             if self.PS2data[1] == self._controllerMode:

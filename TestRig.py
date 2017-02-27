@@ -63,21 +63,9 @@ answer = pips2.transmitBytes([0x01, 0x43, 0x00, 0x01, 0x00])
 digitalWrite(pips2._attnPin, 1)
 printHexArray(answer)
 
-#digitalWrite(pips2._commandPin, 1)
-#delayMicroseconds(1)
-#digitalWrite(pips2._attnPin, 1)
-
-#delayMicroseconds(10)
-
 # SET_MODE_AND_LOCK
-#digitalWrite(pips2._commandPin, 1)
-#digitalWrite(pips2._clkPin, 1)
 digitalWrite(pips2._attnPin, 0)
-
 answer = pips2.transmitBytes([0x01, 0x44, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00])
-
-#digitalWrite(pips2._commandPin, 1)
-#delayMicroseconds(1)
 digitalWrite(pips2._attnPin, 1)
 printHexArray(answer)
 
@@ -91,37 +79,18 @@ digitalWrite(pips2._attnPin, 0)
 answer = pips2.transmitBytes([0x01, 0x43, 0x00, 0x00, 0x5A, 0x5A, 0x5A, 0x5A, 0x5A])
 digitalWrite(pips2._attnPin, 1)
 
-#delayMicroseconds(10)
-
 # CONFIG_MODE_EXIT
-#digitalWrite(pips2._commandPin, 1)
-#digitalWrite(pips2._clkPin, 1)
 digitalWrite(pips2._attnPin, 0)
-
 answer = pips2.transmitBytes([0x01, 0x43, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
-
-#digitalWrite(pips2._commandPin, 1)
-#delayMicroseconds(1)
 digitalWrite(pips2._attnPin, 1)
 printHexArray(answer)
-
-#delayMicroseconds(10)
 
 # poll controller and check in analogue mode
-#digitalWrite(pips2._commandPin, 1)
-#digitalWrite(pips2._clkPin, 1)
 digitalWrite(pips2._attnPin, 0)
-
 answer = pips2.transmitBytes([0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
+digitalWrite(pips2._attnPin, 1)
 printHexArray(answer)
 chk_ana = answer[1]
-
-#digitalWrite(pips2._commandPin, 1)
-#delayMicroseconds(1)
-digitalWrite(pips2._attnPin, 1)
-
-#delayMicroseconds(10)
-
 print("chk_ana=0x%x" % chk_ana)
 
 
@@ -132,7 +101,7 @@ print("chk_ana=0x%x" % chk_ana)
 print("Initialized ...")
 
 #pips2.transmitCmdString(enterConfigMode, len(enterConfigMode))
-#pips2.transmitCmdString(set_mode_analog_lock, len(set_mode_analog_lock))
+#pips2.transmitCmdString(setModeAnalogLockMode, len(setModeAnalogLockMode))
 
 
 

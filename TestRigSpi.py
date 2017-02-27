@@ -102,7 +102,7 @@ print("chk_ana=0x%x" % chk_ana)
 print("Initialized ...")
 
 #pips2.transmitCmdString(enterConfigMode, len(enterConfigMode))
-#pips2.transmitCmdString(set_mode_analog_lock, len(set_mode_analog_lock))
+#pips2.transmitCmdString(setModeAnalogLockMode, len(setModeAnalogLockMode))
 
 
 
