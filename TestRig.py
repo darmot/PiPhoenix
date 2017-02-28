@@ -35,60 +35,40 @@ digitalWrite(pips2._clkPin, 1)
 digitalWrite(pips2._attnPin, 1)
 delayMicroseconds(1000)
 
-digitalWrite(pips2._attnPin, 0)
 answer = pips2.transmitByte(0x01)
-digitalWrite(pips2._attnPin, 1)
 print("Antwort: 0x%0x" % answer)
 
-digitalWrite(pips2._attnPin, 0)
 answer = pips2.transmitBytes([0x01, 0x42, 0x00, 0x00, 0x00])
-digitalWrite(pips2._attnPin, 1)
 printHexArray(answer)
 
-digitalWrite(pips2._attnPin, 0)
 answer = pips2.transmitBytes([0x01, 0x42, 0x00, 0x00, 0x00])
-digitalWrite(pips2._attnPin, 1)
 printHexArray(answer)
 
-digitalWrite(pips2._attnPin, 0)
 answer = pips2.transmitByte(0x01)
-digitalWrite(pips2._attnPin, 1)
 print("Antwort: 0x%0x" % answer)
 
 #sys.exit(0)
 
 # CONFIG_MODE_ENTER
-digitalWrite(pips2._attnPin, 0)
 answer = pips2.transmitBytes([0x01, 0x43, 0x00, 0x01, 0x00])
-digitalWrite(pips2._attnPin, 1)
 printHexArray(answer)
 
 # SET_MODE_AND_LOCK
-digitalWrite(pips2._attnPin, 0)
 answer = pips2.transmitBytes([0x01, 0x44, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00])
-digitalWrite(pips2._attnPin, 1)
 printHexArray(answer)
 
 # SET_DS2_NATIVE_MODE
-digitalWrite(pips2._attnPin, 0)
 answer = pips2.transmitBytes([0x01, 0x4F, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x00, 0x00])
-digitalWrite(pips2._attnPin, 1)
 
 # CONFIG_MODE_EXIT_DS2_NATIVE
-digitalWrite(pips2._attnPin, 0)
 answer = pips2.transmitBytes([0x01, 0x43, 0x00, 0x00, 0x5A, 0x5A, 0x5A, 0x5A, 0x5A])
-digitalWrite(pips2._attnPin, 1)
 
 # CONFIG_MODE_EXIT
-digitalWrite(pips2._attnPin, 0)
 answer = pips2.transmitBytes([0x01, 0x43, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
-digitalWrite(pips2._attnPin, 1)
 printHexArray(answer)
 
 # poll controller and check in analogue mode
-digitalWrite(pips2._attnPin, 0)
 answer = pips2.transmitBytes([0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
-digitalWrite(pips2._attnPin, 1)
 printHexArray(answer)
 chk_ana = answer[1]
 print("chk_ana=0x%x" % chk_ana)

@@ -1,15 +1,16 @@
 from PS2ControllerConstants import *
 from wiringpi import *
-#from wiringpispi import *
 
 
-#include <wiringPi.h>
-#include <stdio.h>
+# from wiringpispi import *
+
+
+# include <wiringPi.h>
+# include <stdio.h>
 
 class PiPS2:
-
     def __init__(self):
-        #private members:
+        # private members:
         self._controllerMode = -1
         self._commandPin = -1
         self._dataPin = -1
@@ -83,10 +84,10 @@ class PiPS2:
             # Set mode to analog mode and lock it there.
             self.transmitBytes(setModeAnalogLockMode)
 
-            #delay(CMD_DELAY);
+            # delay(CMD_DELAY);
 
             # Return all pressures
-            #self.transmitBytes(setAllPressureMode)
+            # self.transmitBytes(setAllPressureMode)
             # Exit config mode.
             self.transmitBytes(exitConfigMode)
 
@@ -99,14 +100,12 @@ class PiPS2:
 
             # If we have tried and failed 10 times. call it quits,
             if self._readDelay == MAX_READ_DELAY:
-                return 1
-
+                return 0
 
             # Otherwise increment the read delay and go for another loop
             self._readDelay = self._readDelay + 1
 
-        return 0
-
+        return 1
 
     # Bit bang a single byte.
     # Inputs:
@@ -116,9 +115,8 @@ class PiPS2:
     #       The byte received
     def transmitByte(self, byte):
         RXdata = self.transmitBytes([byte])[0]
-        #print("RXdata=0x%x" % RXdata)
+        # print("RXdata=0x%x" % RXdata)
         return RXdata
-
 
     # Bit bang a single bit.
     # Inputs:
@@ -145,7 +143,6 @@ class PiPS2:
         delayMicroseconds(CLK_DELAY)
         return inBit
 
-
     # Bit bang out an entire array of bytes.
     #
     # Inputs:
@@ -155,42 +152,41 @@ class PiPS2:
     #       The bytes received.
     def transmitBytes(self, bytes):
 
-        outBits = reduce(lambda accu,b: accu + b, map(lambda byte: map(lambda x: CHK(byte, x), range(8)), bytes))
-        #print(outBits)
+        outBits = reduce(lambda accu, b: accu + b, map(lambda byte: map(lambda x: CHK(byte, x), range(8)), bytes))
+        # print(outBits)
 
         # Ready to begin transmitting, pull attention low.
         digitalWrite(self._attnPin, 0)
 
         inBits = map(lambda bit: self.transmitBit(bit), outBits)
-        #print(inBits)
+        # print(inBits)
 
         # Packet finished, release attention line.
         digitalWrite(self._attnPin, 1)
 
         chunks = [inBits[x:x + 8] for x in range(0, len(inBits), 8)]
         map(lambda chunk: chunk.reverse(), chunks)
-        result = map(lambda chunk: reduce(lambda accu,bit: (accu<<1)|bit, chunk), chunks)
+        result = map(lambda chunk: reduce(lambda accu, bit: (accu << 1) | bit, chunk), chunks)
 
         # Wait some time before beginning another packet.
         delay(self._readDelay)
 
         return result
 
-
     # Read the PS2 Controller. Save the returned data to PS2data.
     def readPS2(self):
 
-        #print("self._last_read=%s" % self._last_read)
-        #print("millis()=%s" % millis())
+        # print("self._last_read=%s" % self._last_read)
+        # print("millis()=%s" % millis())
         timeSince = millis() - self._last_read
-        #print("timeSince=%s" % timeSince)
+        # print("timeSince=%s" % timeSince)
 
-        if timeSince > 1500:        #waited too long
+        if timeSince > 1500:  # waited too long
             print("waited too long")
             self.reInitializeController(self._controllerMode)
 
-        if timeSince < self._readDelay:   #waited too short
-            print("waited too short")
+        if timeSince < self._readDelay:  # waited too short
+            ##print("waited too short")
             delay(self._readDelay - timeSince)
 
         # Ensure that the command bit is high before lowering attention.
@@ -198,35 +194,32 @@ class PiPS2:
         # Ensure that the clock is high.
         digitalWrite(self._clkPin, 1)
         # Drop attention pin.
-        digitalWrite(self._attnPin, 0)
+        # digitalWrite(self._attnPin, 0)
 
         # Wait for a while between transmitting bytes so that pins can stabilize.
         delayMicroseconds(BYTE_DELAY)
 
         # The TX and RX buffer used to read the controller.
-        TxRx1 = [0x01,0x42,0,0,0,0,0,0,0]
-        TxRx2 = [0,0,0,0,0,0,0,0,0,0,0,0]
+        TxRx1 = [0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+        TxRx2 = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 
         # Grab the first 9 bits
-        for i in range(9):
-            self.PS2data[i] = self.transmitByte(TxRx1[i])
+        self.PS2data[0:9] = self.transmitBytes(TxRx1)
+        # for i in range(9):
+        #    self.PS2data[i] = self.transmitByte(TxRx1[i])
 
-        print("PS2data: [%s]" % ', '.join(map(lambda x: '0x%0x' % x, self.PS2data)))
-        # print("PS2data:")
-        # for i in range(21):
-        #     print(" %d" % self.PS2data[i])
-        # print("\n")
+        #print("PS2data: [%s]" % ', '.join(map(lambda x: '0x%0x' % x, self.PS2data)))
 
         # If controller is in full data return mode, get the rest of data
         if self.PS2data[1] == 0x79:
             for i in range(12):
-                self.PS2data[i+9] = self.transmitByte(TxRx2[i])
-                print("%d: %d\t->\t%d\n" % (i, TxRx1[i], self.PS2data[i]))
+                self.PS2data[i + 9] = self.transmitByte(TxRx2[i])
+                #print("%d: %d\t->\t%d\n" % (i, TxRx2[i], self.PS2data[i]))
 
-        print("XXX")
+        #print("XXX")
 
         # Done reading packet, release attention line.
-        digitalWrite(self._attnPin, 1)
+        # digitalWrite(self._attnPin, 1)
         self._last_read = millis()
 
         # Detect which buttons have been changed
@@ -235,8 +228,6 @@ class PiPS2:
         # Save the current button states as the last state for next read)
         self._btnLastState[0] = self.PS2data[3]
         self._btnLastState[1] = self.PS2data[4]
-
-
 
     # Re-Initialize the I/O pins and set up the controller for the desired mode.
     #	TODO:
@@ -257,7 +248,7 @@ class PiPS2:
     # 		-2 			- Failed to get controller into desired mode in less than MAX_INIT_ATTEMPT attempts
     def reInitializeController(self, _controllerMode):
 
-        print("reInitializeController %x" % _controllerMode)
+        print("reInitializeController 0x%x" % _controllerMode)
         self._controllerMode = _controllerMode
         if self._controllerMode != ANALOGMODE and self._controllerMode != ALLPRESSUREMODE:
             return -1
@@ -268,14 +259,14 @@ class PiPS2:
             self.transmitBytes(setModeAnalogLockMode)
             if self._controllerMode == ALLPRESSUREMODE:
                 self.transmitBytes(setAllPressureMode)
-            self.transmitBytes(exitConfigMode)
+                self.transmitBytes(exitConfigAllPressureMode)
+            self.transmitBytes(exitConfigMode2)
             self.readPS2()
             if self.PS2data[1] == self._controllerMode:
                 return 1
             delay(self._readDelay)
 
         return -2
-
 
     # Request the changed states data. To determine what buttons have changed states since last read.
     #
@@ -285,5 +276,3 @@ class PiPS2:
     def getChangedStates(self, outputChangedStates):
         outputChangedStates[0] = self._btnChangedState[0]
         outputChangedStates[1] = self._btnChangedState[1]
-
-

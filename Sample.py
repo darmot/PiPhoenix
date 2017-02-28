@@ -64,7 +64,7 @@ def main(argc, argv):
         exit(EXIT_FAILURE)
 
     delay(50);
-    print("Control mode = %d\n" % pips2.PS2data[1])
+    print("Control mode = 0x%0x\n" % pips2.PS2data[1])
 
     while (1):
         if millis() > nextRead:
@@ -73,10 +73,10 @@ def main(argc, argv):
             pips2.readPS2()
 
             # Example detecting when a button is pressed or released.
-            changedStates = []                        # Create the vector to hold changed states.
+            changedStates = [0] * 2                # Create the vector to hold changed states.
             pips2.getChangedStates(changedStates)  # Populate the vector
-            btnDowns = []                       # Create the vector of buttons that have been pushed since last read.
-            btnUps = [] 	                    # Create the vector of buttons that have been pushed since last read.
+            btnDowns = [0] * 2                     # Create the vector of buttons that have been pushed since last read.
+            btnUps = [0] * 2	                   # Create the vector of buttons that have been pushed since last read.
             # Buttons that have been pushed down are buttons that are currently down and have changed.
             btnDowns[0] = ~pips2.PS2data[3] & changedStates[0]
             # Buttons that have been released are buttons that are currently up and have changed.
