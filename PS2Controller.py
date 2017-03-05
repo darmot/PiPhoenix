@@ -22,6 +22,10 @@ class PiPS2:
         self.PS2data = [0] * 21
         self._last_read = 0
 
+    def printHexArray(self, hexArray):
+        print("Antwort: [%s]" % ', '.join(map(lambda x: '0x%0x' % x, hexArray)))
+        return
+
     # Initialize the I/O pins.
     def setupPins(self, _commandPin, _dataPin, _clkPin, _attnPin):
         # INITIALIZE I/O
@@ -46,9 +50,10 @@ class PiPS2:
     #		Must also implement input parameters to choose what mode to use.
     # 		If you want digital mode or analog mode with all pressures then use reInitController()
     #	Inputs:
-    # 			--!! NOTE !!-- wiringPiSetupPhys(), wiringPiSetupGpio() OR wiringPiSetup()
-    # 				should be called first. The following pins refer to either the gpio or the
-    #				physical pins, depending on how wiring pi was set up.
+    # 			--!! NOTE !!-- wiringPiSetupGpio() must be called first.
+    #               WiringPiSetupPhys() or wiringPiSetup() are not appropriate, because
+    #               pullUpDnControl() is called by this function.
+    #               The following pins therefore refer to the gpio pins.
     # 	_commandPin - The RPi pin that is connected to the COMMAND line of PS2 remote
     #  	_dataPin	- The RPi pin that is connected to the DATA line of PS2 remote
     #  	_clkPin		- The RPi pin that is connected to the CLOCK line of PS2 remote
@@ -152,7 +157,7 @@ class PiPS2:
     #       The bytes received.
     def transmitBytes(self, bytes):
 
-        outBits = reduce(lambda accu, b: accu + b, map(lambda byte: map(lambda x: CHK(byte, x), range(8)), bytes))
+        outBits = reduce(lambda accu, b: accu + b, map(lambda byte: map(lambda x: (byte>>x) & 1, range(8)), bytes))
         # print(outBits)
 
         # Ready to begin transmitting, pull attention low.
@@ -186,7 +191,6 @@ class PiPS2:
             self.reInitializeController(self._controllerMode)
 
         if timeSince < self._readDelay:  # waited too short
-            ##print("waited too short")
             delay(self._readDelay - timeSince)
 
         # Ensure that the command bit is high before lowering attention.
@@ -205,18 +209,12 @@ class PiPS2:
 
         # Grab the first 9 bits
         self.PS2data[0:9] = self.transmitBytes(TxRx1)
-        # for i in range(9):
-        #    self.PS2data[i] = self.transmitByte(TxRx1[i])
-
-        #print("PS2data: [%s]" % ', '.join(map(lambda x: '0x%0x' % x, self.PS2data)))
 
         # If controller is in full data return mode, get the rest of data
         if self.PS2data[1] == 0x79:
-            for i in range(12):
-                self.PS2data[i + 9] = self.transmitByte(TxRx2[i])
-                #print("%d: %d\t->\t%d\n" % (i, TxRx2[i], self.PS2data[i]))
+            self.PS2data[9:21] = self.transmitBytes(TxRx2)
 
-        #print("XXX")
+        #self.printHexArray(self.PS2data)
 
         # Done reading packet, release attention line.
         # digitalWrite(self._attnPin, 1)
@@ -270,9 +268,8 @@ class PiPS2:
 
     # Request the changed states data. To determine what buttons have changed states since last read.
     #
-    # Input:
-    # 		outputChangedStates 	- The pointer to a two element char vector to hold the changed states.
+    # Returns:
+    # 		outputChangedStates 	- Array with two char elements to holding the changed states.
     #
-    def getChangedStates(self, outputChangedStates):
-        outputChangedStates[0] = self._btnChangedState[0]
-        outputChangedStates[1] = self._btnChangedState[1]
+    def getChangedStates(self):
+        return self._btnChangedState[:]

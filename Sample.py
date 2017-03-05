@@ -14,13 +14,7 @@
 ##
 import sys
 import wiringpi
-from PS2ControllerConstants import *
 from PS2Controller import *
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
 
 READDELAYMS = 10
 EXIT_FAILURE = 1
@@ -73,8 +67,7 @@ def main(argc, argv):
             pips2.readPS2()
 
             # Example detecting when a button is pressed or released.
-            changedStates = [0] * 2                # Create the vector to hold changed states.
-            pips2.getChangedStates(changedStates)  # Populate the vector
+            changedStates = pips2.getChangedStates()  # Populate the vector
             btnDowns = [0] * 2                     # Create the vector of buttons that have been pushed since last read.
             btnUps = [0] * 2	                   # Create the vector of buttons that have been pushed since last read.
             # Buttons that have been pushed down are buttons that are currently down and have changed.
