@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4272ccd7-16a9-4a65-a493-440af83bfe0f" name="Default" comment="Code cleanup">
+    <list default="true" id="4272ccd7-16a9-4a65-a493-440af83bfe0f" name="Default" comment="Remote added">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -321,7 +321,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488739017056</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Remote added">
+      <created>1488833508625</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1488833508657</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TodoView" selected-index="4">
@@ -383,7 +390,8 @@
     <MESSAGE value="Code cleanup; Controller commands added" />
     <MESSAGE value="erstes funktionierendes Sample" />
     <MESSAGE value="Code cleanup" />
-    <option name="LAST_COMMIT_MESSAGE" value="Code cleanup" />
+    <MESSAGE value="Remote added" />
+    <option name="LAST_COMMIT_MESSAGE" value="Remote added" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
