@@ -87,65 +87,76 @@ InputTimeDelay      = None  # Delay that depends on the input to get the "sneaki
 SpeedControl        = None  # Adjustible Delay
 # --------------------------------------------------------------------
 # [GLOABAL]
-HexOn               = None	# Switch to turn on Phoenix
-Prev_HexOn          = None	# Previous loop state
+HexOn               = None  # Switch to turn on Phoenix
+Prev_HexOn          = None  # Previous loop state
+
 
 # ====================================================================
 # [INIT]
+def Init():
+    global LedA, LedB, LedC, Eyes, SSCTime, HexOn
 
-Servo.GetSSCVersion()
+    Servo.GetSSCVersion()
 
-# Turning off all the leds
-LedA = 0
-LedB = 0
-LedC = 0
-Eyes = 0
+    # Turning off all the leds
+    LedA = 0
+    LedB = 0
+    LedC = 0
+    Eyes = 0
   
-Servo.InitServos()  		# Tars Init Positions
-SingleLeg.InitSingleLeg()
-IkRoutines.InitIK()
-Gait.InitGait()
+    Servo.InitServos()  		# Tars Init Positions
+    SingleLeg.InitSingleLeg()
+    IkRoutines.InitIK()
+    Gait.InitGait()
 
-# Initialize Controller
-PhoenixControlPs2.InitController()
+    # Initialize Controller
+    PhoenixControlPs2.InitController()
 
-# SSC
-SSCTime = 150
-HexOn = 0
+    # SSC
+    SSCTime = 150
+    HexOn = 0
+    return
+
+
 # ====================================================================
-# [MAIN]	
-# main:
-while 1:
-    # pause 1000
+# [MAIN]
+def MainLoop():
+    global lTimerStart, Prev_HexOn
 
-    # Start time
-    lTimerStart = GetCurrentTime()
+    # main:
+    while 1:
+        # time.sleep(1)  # pause 1000
+
+        # Start time
+        lTimerStart = GetCurrentTime()
   
-    PhoenixControlPs2.ControlInput()		# Read input
+        PhoenixControlPs2.ControlInput()		# Read input
   
-    # ReadButtons()		# I/O used by the remote
-    WriteOutputs()		# Write Outputs
+        # ReadButtons()		# I/O used by the remote
+        WriteOutputs()		# Write Outputs
 
-    # GP Player
-    if GPEnable:
-        Servo.GPPlayer()
+        # GP Player
+        if GPEnable:
+            Servo.GPPlayer()
 
-    SingleLeg.SingleLegControl() 	# Single leg control
-    Gait.GaitSeq()  			# Gait
-    Balance.CalcBalance()  		# Balance calculations
-    IkRoutines.CalcIK()  			# calculate inverse kinematic
-    Servo.CheckAngles()  		# Check mechanical limits
-    Servo.ServoDriverMain()  	# Drive Servos
+        SingleLeg.SingleLegControl() 	# Single leg control
+        Gait.GaitSeq()  			# Gait
+        Balance.CalcBalance()  		# Balance calculations
+        IkRoutines.CalcIK()  			# calculate inverse kinematic
+        Servo.CheckAngles()  		# Check mechanical limits
+        Servo.ServoDriverMain()  	# Drive Servos
     
-    # Store previous HexOn State
-    if HexOn:
-        Prev_HexOn = 1
-    else:
-        Prev_HexOn = 0
+        # Store previous HexOn State
+        if HexOn:
+            Prev_HexOn = 1
+        else:
+            Prev_HexOn = 0
 
-# goto main
-# dead:
-# goto dead
+        # goto main
+
+    # dead:
+    # goto dead
+    return
 
 
 # ====================================================================
@@ -188,8 +199,14 @@ def WriteOutputs():
     return
 
 
+# --------------------------------------------------------------------
 # [Simple function to get the current time in milliseconds ]
 def GetCurrentTime():
     lCurrentTime = int(time.time()*1000)
     return lCurrentTime						# switched back to basic
+
+
 # --------------------------------------------------------------------
+# [Entry point]
+Init()
+MainLoop()

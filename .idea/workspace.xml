@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4272ccd7-16a9-4a65-a493-440af83bfe0f" name="Default" comment="Initially translated Phoenix files from Basic to Python">
+    <list default="true" id="4272ccd7-16a9-4a65-a493-440af83bfe0f" name="Default" comment="Introduced Init() and">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Phoenix.py" afterPath="$PROJECT_DIR$/Phoenix.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Servo.py" afterPath="$PROJECT_DIR$/Servo.py" />
@@ -46,8 +46,8 @@
       <file leaf-file-name="Servo.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Servo.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="41" column="0" lean-forward="true" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
+            <state relative-caret-position="425">
+              <caret line="187" column="42" lean-forward="false" selection-start-line="187" selection-start-column="42" selection-end-line="187" selection-end-column="42" />
               <folding>
                 <element signature="e#202#213#0" expanded="true" />
               </folding>
@@ -92,8 +92,8 @@
       <file leaf-file-name="Phoenix.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Phoenix.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="64" column="0" lean-forward="false" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
+            <state relative-caret-position="544">
+              <caret line="211" column="1" lean-forward="false" selection-start-line="211" selection-start-column="1" selection-end-line="211" selection-end-column="1" />
               <folding>
                 <element signature="e#1199#1210#0" expanded="true" />
               </folding>
@@ -124,11 +124,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>,</find>
-      <find>LegPosY</find>
-      <find>)</find>
-      <find>LegIndex</find>
-      <find>cRF</find>
       <find>BalLegNr</find>
       <find>(</find>
       <find>LegIn</find>
@@ -154,6 +149,11 @@
       <find>WTIMERTICSPERMS</find>
       <find>wTimerWOverflowCnt</find>
       <find>lTimerStart</find>
+      <find>p</find>
+      <find>pa</find>
+      <find>pau</find>
+      <find>paus</find>
+      <find>pause</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;$1&quot;</replace>
@@ -489,7 +489,14 @@
       <option name="project" value="LOCAL" />
       <updated>1490468826688</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Established timing per milliseconds">
+      <created>1490477253701</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1490477253701</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TodoView" selected-index="4">
@@ -567,7 +574,8 @@
     <MESSAGE value="Remote added" />
     <MESSAGE value="Rebased and pulled from GitHub" />
     <MESSAGE value="Initially translated Phoenix files from Basic to Python" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initially translated Phoenix files from Basic to Python" />
+    <MESSAGE value="Established timing per milliseconds" />
+    <option name="LAST_COMMIT_MESSAGE" value="Established timing per milliseconds" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -924,10 +932,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2017.1/system/python_stubs/1792317573/time.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="229">
+          <caret line="121" column="4" lean-forward="false" selection-start-line="121" selection-start-column="4" selection-end-line="121" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Servo.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="41" column="0" lean-forward="true" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
+        <state relative-caret-position="425">
+          <caret line="187" column="42" lean-forward="false" selection-start-line="187" selection-start-column="42" selection-end-line="187" selection-end-column="42" />
           <folding>
             <element signature="e#202#213#0" expanded="true" />
           </folding>
@@ -936,8 +952,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Phoenix.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="64" column="0" lean-forward="false" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
+        <state relative-caret-position="544">
+          <caret line="211" column="1" lean-forward="false" selection-start-line="211" selection-start-column="1" selection-end-line="211" selection-end-column="1" />
           <folding>
             <element signature="e#1199#1210#0" expanded="true" />
           </folding>

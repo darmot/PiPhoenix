@@ -185,6 +185,7 @@ def pause(milliseconds):
 
 # --------------------------------------------------------------------
 def serout(txPin, baudMode, outputData):
+    ### TODO format string and send to ssc
     return
 
 
