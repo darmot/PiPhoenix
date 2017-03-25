@@ -172,7 +172,7 @@ PS2CMD = physPinToGpio(PS2CMD)
 PS2SEL = physPinToGpio(PS2SEL)
 PS2CLK = physPinToGpio(PS2CLK)
 PS2DAT = physPinToGpio(PS2DAT)
-print("commandPin=%d, dataPin=%d, clkPin=%d, attnPin=%d" % (PS2CMD, PS2DAT, PS2CLK, PS2SEL))
+print("_commandPin=%d, _dataPin=%d, _clkPin=%d, _attnPin=%d" % (PS2CMD, PS2DAT, PS2CLK, PS2SEL))
 
 attempts = 0
 while DS2Mode <> PadMode and attempts < 20:

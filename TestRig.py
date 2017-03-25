@@ -17,7 +17,7 @@ commandPin = wiringpi.physPinToGpio(19)
 dataPin = wiringpi.physPinToGpio(21)
 clkPin = wiringpi.physPinToGpio(23)
 attnPin = wiringpi.physPinToGpio(24)
-print("commandPin=%d, dataPin=%d, clkPin=%d, attnPin=%d" % (commandPin, dataPin, clkPin, attnPin))
+print("_commandPin=%d, _dataPin=%d, _clkPin=%d, _attnPin=%d" % (commandPin, dataPin, clkPin, attnPin))
 
 ############## PiPS2 stuff ############################
 ## Create a PIPS2 object
