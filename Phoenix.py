@@ -32,6 +32,7 @@
 # 	2. phoenix_V2x.bas
 # 	3. phoenix_Control_ps2.bas
 # ====================================================================
+import time
 import Gait
 import Servo
 import SingleLeg
@@ -75,11 +76,9 @@ Index = None		# Index universal used
 
 # --------------------------------------------------------------------
 # [TIMING]
-wTimerWOverflowCnt  = None  # used in WTimer overflow. Will keep a 16 bit overflow so we have a 32 bit timer
-lCurrentTime        = None
-lTimerStart         = None  # Start time of the calculation cycles
-lTimerEnd           = None 	# End time of the calculation cycles
-CycleTime           = None  # Total Cycle time
+lTimerStart         = None  # Start time of the calculation cycles (in milliseconds)
+lTimerEnd           = None 	# End time of the calculation cycles (in milliseconds)
+CycleTime           = None  # Total Cycle time (in milliseconds)
 
 SSCTime             = None  # Time for servo updates
 PrevSSCTime         = None  # Previous time for the servo updates
@@ -91,9 +90,6 @@ SpeedControl        = None  # Adjustible Delay
 HexOn               = None	# Switch to turn on Phoenix
 Prev_HexOn          = None	# Previous loop state
 
-# ====================================================================
-# [TIMER INTERRUPT INIT]
-### TODO ONASMINTERRUPT TIMERWINT, Handle_TIMERW
 # ====================================================================
 # [INIT]
 
@@ -109,14 +105,6 @@ Servo.InitServos()  		# Tars Init Positions
 SingleLeg.InitSingleLeg()
 IkRoutines.InitIK()
 Gait.InitGait()
-
-# Timer
-### TODO WTIMERTICSPERMS con 2000#  we have 16 clocks per ms and we are incrementing every 8 so divide again by 2
-TCRW = 0x30 			# clears TCNT and sets the timer to inc clock cycle / 8 
-TMRW = 0x80 			# starts the timer counting 
-wTimerWOverflowCnt = 0 
-### TODO enable TIMERWINT_OVF 	# enable timer interrupt
-### TODO enable					# enables all interrupts
 
 # Initialize Controller
 PhoenixControlPs2.InitController()
@@ -200,39 +188,8 @@ def WriteOutputs():
     return
 
 
-# --------------------------------------------------------------------
-# [Handle TimerW interrupt]
-# BEGINASMSUB
-# HANDLE_TIMERW
-# ASM {
-#  push.w   r1							#  save away register we will use
-#  bclr #7,@TSRW:8						#  clear the overflow bit in the Timer status word
-#  mov.w @WTIMERWOVERFLOWCNT:16,r1		#  We will increment the word that is the highword for a clock timer
-#  inc.w #1,r1
-#  mov.w r1, @WTIMERWOVERFLOWCNT:16
-#  pop.w  r1								#  restore our registers
-#  rte									#  and return
-# }
-# return
-# ENDASMSUB
-# -------------------------------------------------------------------------------------
-
-# [Simple function to get the current time and verify that no overflow happened]
-
+# [Simple function to get the current time in milliseconds ]
 def GetCurrentTime():
-    # ASM {
-    #  nop      #  probably not needed, but to make sure we are in assembly mode
-    #  mov.w  @WTIMERWOVERFLOWCNT:16, e1
-    #  mov.w  @TCNT:16, r1
-    #  mov.w  @WTIMERWOVERFLOWCNT:16, r2
-    #  cmp.w  r2,e1							#  make sure no overflow happened
-    #  beq           _GCT_RETURN:8			#  no overflow, so return it
-    #
-    #  mov.w  @WTIMERWOVERFLOWCNT:16, e1
-    #  mov.w  @TCNT:16, r1
-    #
-    # _GCT_RETURN:
-    #  mov.l  er1, @LCURRENTTIME:16
-    # }
+    lCurrentTime = int(time.time()*1000)
     return lCurrentTime						# switched back to basic
 # --------------------------------------------------------------------

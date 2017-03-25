@@ -32,7 +32,7 @@ def CheckAngles(CoxaAngle1, FemurAngle1, TibiaAngle1):
 # [SERVO DRIVER MAIN] Updates the positions of the servos
 def ServoDriverMain(HexOn, Prev_HexOn, TravelLengthX, TravelLengthZ, TravelRotationY, NomGaitSpeed, InputTimeDelay,
                     SpeedControl, cTravelDeadZone, BalanceMode, GaitPosX, GaitPosY, GaitPosZ, GaitRotY, cRF, cRM,
-                    cRR, cLF, cLM, cLR, PrevSSCTime, AllDown, lTimerStart, WTIMERTICSPERMS):
+                    cRR, cLF, cLM, cLR, PrevSSCTime, AllDown, lTimerStart):
     # serout S_OUT, i38400, ["ServoDriveMain: HexOn=",dec HexOn,", Prev_HexOn=",dec Prev_HexOn,13]
 
     if HexOn:
@@ -59,7 +59,7 @@ def ServoDriverMain(HexOn, Prev_HexOn, TravelLengthX, TravelLengthZ, TravelRotat
                 GaitRotY[cRF] or GaitRotY[cRM] or GaitRotY[cRR] or GaitRotY[cLF] or GaitRotY[cLM] or GaitRotY[cLR]):
             # Get endtime and calculate wait time
             lTimerEnd = GetCurrentTime()
-            CycleTime = (lTimerEnd - lTimerStart) / WTIMERTICSPERMS
+            CycleTime = lTimerEnd - lTimerStart
 
             # Wait for previous commands to be completed while walking
             pause(min((PrevSSCTime - CycleTime - 45),
