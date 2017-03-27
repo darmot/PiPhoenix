@@ -182,9 +182,9 @@ def BodyIK(PosX, PosZ, PosY, RotationY, BodyIKLeg):
 # IKFeetPosZ			- Input Position of the Feet Z
 # IKSolution			- Output true IF the solution is possible
 # IKSolutionWarning 	- Output true IF the solution is NEARLY possible
-# IKSolutionError	- Output true IF the solution is NOT possible
-# FemurAngle1	   	- Output Angle of Femur in degrees
-# TibiaAngle1  	 	- Output Angle of Tibia in degrees
+# IKSolutionError	    - Output true IF the solution is NOT possible
+# FemurAngle1	   	    - Output Angle of Femur in degrees
+# TibiaAngle1  	 	    - Output Angle of Tibia in degrees
 # CoxaAngle1			- Output Angle of Coxa in degrees
 LegIKLegNr = None
 

@@ -15,7 +15,7 @@
 # [SERIAL CONNECTIONS]
 # cSSC_OUT         con P10      # Output pin for (SSC32 RX) on BotBoard (Yellow)
 # cSSC_IN          con P11      # Input pin for (SSC32 TX) on BotBoard (Blue)
-# cSSC_BAUD       con i38400   # SSC32 BAUD rate
+cSSC_BAUD      = 115200  # SSC32 BAUD rate
 # --------------------------------------------------------------------
 # [BB2 PIN NUMBERS]
 # cEyesPin      con P8

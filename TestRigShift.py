@@ -152,7 +152,7 @@ def InitController():
         digitalWrite(PS2SEL, 1)  # high PS2SEL
         delayMicroseconds(100*1000)  # pause 100
 
-        #sound P9,[100\4000, 100\4500, 100\5000]
+        #sound([(100,4000), (100,4500), (100,5000)])
 
         #goto InitController #Check if the remote is initialized correctly
 

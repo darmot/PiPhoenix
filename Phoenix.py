@@ -94,9 +94,9 @@ Prev_HexOn          = None  # Previous loop state
 # ====================================================================
 # [INIT]
 def Init():
-    global LedA, LedB, LedC, Eyes, SSCTime, HexOn
+    global LedA, LedB, LedC, Eyes, SSCTime, HexOn, GPEnable
 
-    Servo.GetSSCVersion()
+    GPEnable = Servo.GetSSCVersion()
 
     # Turning off all the leds
     LedA = 0
@@ -121,7 +121,7 @@ def Init():
 # ====================================================================
 # [MAIN]
 def MainLoop():
-    global lTimerStart, Prev_HexOn
+    global lTimerStart, Prev_HexOn, Eyes, SSCTime, PrevSSCTime
 
     # main:
     while 1:
@@ -137,14 +137,16 @@ def MainLoop():
 
         # GP Player
         if GPEnable:
-            Servo.GPPlayer()
+            Servo.GPPlayer(GPStart, GPSeq)
 
         SingleLeg.SingleLegControl() 	# Single leg control
         Gait.GaitSeq()  			# Gait
         Balance.CalcBalance()  		# Balance calculations
         IkRoutines.CalcIK()  			# calculate inverse kinematic
         Servo.CheckAngles()  		# Check mechanical limits
-        Servo.ServoDriverMain()  	# Drive Servos
+        (Eyes, SSCTime, PrevSSCTime) \
+            = Servo.ServoDriverMain(Eyes, SSCTime, PrevSSCTime, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl,
+                                    lTimerStart)  	# Drive Servos
     
         # Store previous HexOn State
         if HexOn:

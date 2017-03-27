@@ -2,7 +2,17 @@
 # Constants are still defined as single values in the cfg file to make it easy to read/configure
 
 import time
+import serial
 from Config_Ch3r import *
+from Gait import cLR, cLF, cLM, cRF, cRM, cRR, \
+    TravelLengthX, TravelLengthZ, TravelRotationY, \
+    NomGaitSpeed, cTravelDeadZone
+from IkRoutines import GaitPosX, GaitPosY, GaitPosZ, GaitRotY, BalanceMode, \
+    CoxaAngle1, FemurAngle1, TibiaAngle1, \
+    LegPosX, LegPosY, LegPosZ, \
+    cInitPosX, cInitPosY, cInitPosZ
+from SingleLeg import AllDown
+from Phoenix import GetCurrentTime
 
 # SSC Pin numbers
 cCoxaPin = [cRRCoxaPin, cRMCoxaPin, cRFCoxaPin, cLRCoxaPin, cLMCoxaPin, cLFCoxaPin]
@@ -17,10 +27,12 @@ cFemurMax1 = [cRRFemurMax1, cRMFemurMax1, cRFFemurMax1, cLRFemurMax1, cLMFemurMa
 cTibiaMin1 = [cRRTibiaMin1, cRMTibiaMin1, cRFTibiaMin1, cLRTibiaMin1, cLMTibiaMin1, cLFTibiaMin1]
 cTibiaMax1 = [cRRTibiaMax1, cRMTibiaMax1, cRFTibiaMax1, cLRTibiaMax1, cLMTibiaMax1, cLFTibiaMax1]
 
+ser = None
+
 
 # --------------------------------------------------------------------
 # [CHECK ANGLES] Checks the mechanical limits of the servos
-def CheckAngles(CoxaAngle1, FemurAngle1, TibiaAngle1):
+def CheckAngles():
     for LegIndex in range(6):
         CoxaAngle1[LegIndex] = max(min(CoxaAngle1[LegIndex], cCoxaMin1[LegIndex]), cCoxaMax1[LegIndex])
         FemurAngle1[LegIndex] = max(min(FemurAngle1[LegIndex], cFemurMin1[LegIndex]), cFemurMax1[LegIndex])
@@ -30,19 +42,19 @@ def CheckAngles(CoxaAngle1, FemurAngle1, TibiaAngle1):
 
 # --------------------------------------------------------------------
 # [SERVO DRIVER MAIN] Updates the positions of the servos
-def ServoDriverMain(HexOn, Prev_HexOn, TravelLengthX, TravelLengthZ, TravelRotationY, NomGaitSpeed, InputTimeDelay,
-                    SpeedControl, cTravelDeadZone, BalanceMode, GaitPosX, GaitPosY, GaitPosZ, GaitRotY, cRF, cRM,
-                    cRR, cLF, cLM, cLR, PrevSSCTime, AllDown, lTimerStart):
-    # serout S_OUT, i38400, ["ServoDriveMain: HexOn=",dec HexOn,", Prev_HexOn=",dec Prev_HexOn,13]
+def ServoDriverMain(Eyes, SSCTime, PrevSSCTime, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl, lTimerStart):
+
+    # print("ServoDriveMain: HexOn=%d, Prev_HexOn=%d\n" % (HexOn, Prev_HexOn))
 
     if HexOn:
         if HexOn and Prev_HexOn == 0:
-            # Sound P9,[60\4000,80\4500,100\5000]
+            sound([(60, 4000), (80, 4500), (100, 5000)])
             Eyes = 1
 
         # Set SSC time
-        if abs(TravelLengthX) > cTravelDeadZone or abs(TravelLengthZ) > cTravelDeadZone or abs(
-                        TravelRotationY * 2) > cTravelDeadZone:
+        if abs(TravelLengthX) > cTravelDeadZone \
+                or abs(TravelLengthZ) > cTravelDeadZone \
+                or abs(TravelRotationY * 2) > cTravelDeadZone:
             SSCTime = NomGaitSpeed + (InputTimeDelay * 2) + SpeedControl
 
             # Add aditional delay when Balance mode is on
@@ -62,44 +74,44 @@ def ServoDriverMain(HexOn, Prev_HexOn, TravelLengthX, TravelLengthZ, TravelRotat
             CycleTime = lTimerEnd - lTimerStart
 
             # Wait for previous commands to be completed while walking
-            pause(min((PrevSSCTime - CycleTime - 45),
-                      1))  # Min 1 ensures that there always is a value in the pause command
+            # Min 1 ensures that there always is a value in the  pause command
+            pause(min((PrevSSCTime - CycleTime - 45), 1))
 
-        ServoDriver()
+        PrevSSCTime = ServoDriver(SSCTime)
 
     else:
 
         # Turn the bot off
         if Prev_HexOn or not AllDown:
             SSCTime = 600
-            ServoDriver()
-            # Sound P9,[100\5000,80\4500,60\4000]
+            PrevSSCTime = ServoDriver(SSCTime)
+            sound([(100, 5000), (80, 4500), (60, 4000)])
             pause(600)
         else:
             FreeServos()
             Eyes = 0
 
-    return Eyes, SSCTime
+    return Eyes, SSCTime, PrevSSCTime
 
 
 # --------------------------------------------------------------------
 # [SERVO DRIVER] Updates the positions of the servos
-def ServoDriver(cSSC_OUT, cSSC_BAUD, CoxaAngle1, FemurAngle1, TibiaAngle1, SSCTime):
+def ServoDriver(SSCTime):
 
     # Update Right Legs
     for LegIndex in range(3):
-        serout(cSSC_OUT, cSSC_BAUD, ["#", cCoxaPin[LegIndex], "P", (-CoxaAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
-        serout(cSSC_OUT, cSSC_BAUD, ["#", cFemurPin[LegIndex], "P", (-FemurAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
-        serout(cSSC_OUT, cSSC_BAUD, ["#", cTibiaPin[LegIndex], "P", (-TibiaAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
+        serout(["#", cCoxaPin[LegIndex], "P", (-CoxaAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
+        serout(["#", cFemurPin[LegIndex], "P", (-FemurAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
+        serout(["#", cTibiaPin[LegIndex], "P", (-TibiaAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
 
     # Update Left Legs
     for LegIndex in range(3, 6):
-        serout(cSSC_OUT, cSSC_BAUD, ["#", cCoxaPin[LegIndex], "P", (CoxaAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
-        serout(cSSC_OUT, cSSC_BAUD, ["#", cFemurPin[LegIndex], "P", (FemurAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
-        serout(cSSC_OUT, cSSC_BAUD, ["#", cTibiaPin[LegIndex], "P", (TibiaAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
+        serout(["#", cCoxaPin[LegIndex], "P", (CoxaAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
+        serout(["#", cFemurPin[LegIndex], "P", (FemurAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
+        serout(["#", cTibiaPin[LegIndex], "P", (TibiaAngle1[LegIndex] + 900) * 1000 / 1059 + 650])
 
     # Send <CR>
-    serout(cSSC_OUT, cSSC_BAUD, ["T", SSCTime, 13])
+    serout(["T", SSCTime, "\r"])
 
     PrevSSCTime = SSCTime
     return PrevSSCTime
@@ -107,29 +119,29 @@ def ServoDriver(cSSC_OUT, cSSC_BAUD, CoxaAngle1, FemurAngle1, TibiaAngle1, SSCTi
 
 # --------------------------------------------------------------------
 # [FREE SERVOS] Frees all the servos
-def FreeServos(cSSC_OUT, cSSC_BAUD):
+def FreeServos():
     for LegIndex in range(32):
-        serout(cSSC_OUT, cSSC_BAUD, ["#", LegIndex, "P0"])
+        serout(["#", LegIndex, "P0"])
 
-    serout(cSSC_OUT, cSSC_BAUD, ["T200", 13])
+    serout(["T200\r"])
     return
 
 
 # --------------------------------------------------------------------
 # [GET SSC VERSION] Checks SSC version number if it ends with "GP"
 # enable the GP player if it does
-def GetSSCVersion(cSSC_OUT, cSSC_IN, cSSC_BAUD):
+def GetSSCVersion():
     pause(10)
     GPEnable = 0
-    # Index = 0
-    serout(cSSC_OUT, cSSC_BAUD, ["ver", 13])
-    readline(cSSC_IN, cSSC_BAUD)
-    if str.endswith("GP\r"):
+    serout(["ver\r"])
+    s = readline()
+    if s.endswith("GP\r"):
         GPEnable = 1
     else:
-        # sound(P9, [(40, 5000), (40, 5000)])
+        sound([(40, 5000), (40, 5000)])
         pass
 
+    # Index = 0
     #    while 1:
     #        serin(cSSC_IN, cSSC_BAUD, 1000, timeout, [GPVerData[Index]])
     #        Index = (Index+1)%3 # shift last 3 chars in data
@@ -147,11 +159,15 @@ def GetSSCVersion(cSSC_OUT, cSSC_IN, cSSC_BAUD):
 
 # --------------------------------------------------------------------
 # [INIT SERVOS] Sets start positions for each leg
-def InitServos(LegPosX, LegPosY, LegPosZ, cInitPosX, cInitPosY, cInitPosZ):
+def InitServos():
+    global ser
+
     for LegIndex in range(6):
         LegPosX[LegIndex] = cInitPosX[LegIndex]  # Set start positions for each leg
         LegPosY[LegIndex] = cInitPosY[LegIndex]
         LegPosZ[LegIndex] = cInitPosZ[LegIndex]
+
+    ser = serial.Serial('/dev/ttyUSB0', cSSC_BAUD)
     return
 
 
@@ -163,15 +179,15 @@ GPStatToStep = 0
 GPStatTime = 0
 
 
-def GPPlayer(GPStart, GPSeq, cSSC_OUT, cSSC_BAUD, cSSC_IN):
+def GPPlayer(GPStart, GPSeq):
     # Start sequence
     if GPStart == 1:
-        serout(cSSC_OUT, cSSC_BAUD, ["PL0SQ", GPSeq, "ONCE", 13])  # Start sequence
+        serout(["PL0SQ", GPSeq, "ONCE\r"])  # Start sequence
 
         # Wait for GPPlayer to complete sequence
         while GPStatSeq != 255 or GPStatFromStep != 0 or GPStatToStep != 0 or GPStatTime != 0:
-            serout(cSSC_OUT, cSSC_BAUD, ["QPL0", 13])
-            serin(cSSC_IN, cSSC_BAUD, [GPStatSeq, GPStatFromStep, GPStatToStep, GPStatTime])
+            serout(["QPL0\r"])
+            serin([GPStatSeq, GPStatFromStep, GPStatToStep, GPStatTime])
 
         GPStart = 0
     return GPStart
@@ -184,28 +200,26 @@ def pause(milliseconds):
 
 
 # --------------------------------------------------------------------
-def serout(txPin, baudMode, outputData):
-    ### TODO format string and send to ssc
+def serout(outputData):
+    x = reduce(lambda accu, d: accu + str(d), outputData)
+    ser.write(x)
     return
 
 
 # --------------------------------------------------------------------
-def serin(rxPin, baudMode, inputData):
+def serin(inputData):
+    ser.readinto(inputData)
     return
 
 
 # --------------------------------------------------------------------
-def readline(rxPin, baudMode):
-    return "\r";
+def readline():
+    x = ser.read_until(serial.CR)
+    return x
 
 
 # --------------------------------------------------------------------
 # list of tuples of duration in millisecvons and note in Hz (frequency)
-def sound(pin, listOfDurationAndNotes):
+def sound(listOfDurationAndNotes):
+    print listOfDurationAndNotes
     return
-
-
-# --------------------------------------------------------------------
-# must return a 32 Bit timer
-def GetCurrentTime():
-    return 0
