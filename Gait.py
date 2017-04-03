@@ -1,13 +1,15 @@
+from IkRoutines import GaitPosX, GaitPosY, GaitPosZ, GaitRotY
+
 # [CONSTANTS]
-cRR	= 0
-cRM	= 1
-cRF	= 2
-cLR	= 3
-cLM	= 4
-cLF	= 5
+cRR = 0
+cRM = 1
+cRF = 2
+cLR = 3
+cLM = 4
+cLF = 5
 
 # [REMOTE]
-cTravelDeadZone	= 4     # The deadzone for the analog input from the remote
+cTravelDeadZone = 4     # The deadzone for the analog input from the remote
 
 # --------------------------------------------------------------------
 # [gait]
@@ -35,13 +37,13 @@ GaitLegNrIn     = None  # Input Number of the leg
 
 # --------------------------------------------------------------------
 def InitGait():
-    global GaitType, BalanceMode, LegLiftHeight, GaitStep
+    global GaitType, LegLiftHeight, GaitStep
     GaitType = 0
-    BalanceMode = 0
     LegLiftHeight = 50
     GaitStep = 1
     # fall through to GaitSelect
     GaitSelect()
+    return
 
 
 # --------------------------------------------------------------------
@@ -171,7 +173,7 @@ def GaitSeq():
     global LastLeg
     # Calculate Gait sequence
     LastLeg = 0
-    for LegIndex in range(0,6):     # for all legs
+    for LegIndex in range(0, 6):    # for all legs
         if LegIndex == 5:           # last leg
             LastLeg = 1
 
@@ -207,9 +209,10 @@ def Gait(GaitCurrentLegNr):
     else:
         # Optional Half heigth Rear
         if (((NrLiftedPos == 2 and GaitStep == GaitLegNr[GaitCurrentLegNr])
-             or (NrLiftedPos == 3 and (GaitStep == GaitLegNr[GaitCurrentLegNr]-1
-                                       or GaitStep == GaitLegNr[GaitCurrentLegNr]+(StepsInGait-1))))
-            and GaitInMotion):
+                or (NrLiftedPos == 3
+                and (GaitStep == GaitLegNr[GaitCurrentLegNr]-1
+                     or GaitStep == GaitLegNr[GaitCurrentLegNr]+(StepsInGait-1))))
+                and GaitInMotion):
             GaitPosX[GaitCurrentLegNr] = -TravelLengthX/2
             GaitPosY[GaitCurrentLegNr] = -LegLiftHeight/(HalfLiftHeigth+1)
             GaitPosZ[GaitCurrentLegNr] = -TravelLengthZ/2
@@ -217,9 +220,10 @@ def Gait(GaitCurrentLegNr):
 
         else:
             # Optional half heigth front
-            if ((NrLiftedPos>=2)
-                and (GaitStep==GaitLegNr[GaitCurrentLegNr]+1 or GaitStep==GaitLegNr[GaitCurrentLegNr]-(StepsInGait-1))
-                and GaitInMotion):
+            if ((NrLiftedPos >= 2)
+                    and (GaitStep == GaitLegNr[GaitCurrentLegNr] + 1
+                         or GaitStep == GaitLegNr[GaitCurrentLegNr]-(StepsInGait-1))
+                    and GaitInMotion):
                 GaitPosX[GaitCurrentLegNr] = TravelLengthX/2
                 GaitPosY[GaitCurrentLegNr] = -LegLiftHeight/(HalfLiftHeigth+1)
                 GaitPosZ[GaitCurrentLegNr] = TravelLengthZ/2
@@ -227,7 +231,9 @@ def Gait(GaitCurrentLegNr):
 
             else:
                 # Leg front down position
-                if (GaitStep==GaitLegNr[GaitCurrentLegNr]+NrLiftedPos or GaitStep==GaitLegNr[GaitCurrentLegNr]-(StepsInGait-NrLiftedPos)) and GaitPosY(GaitCurrentLegNr)<0:
+                if (GaitStep == GaitLegNr[GaitCurrentLegNr] + NrLiftedPos
+                        or GaitStep == GaitLegNr[GaitCurrentLegNr] - (StepsInGait-NrLiftedPos)) \
+                        and GaitPosY(GaitCurrentLegNr)<0:
                     GaitPosX[GaitCurrentLegNr] = TravelLengthX/2
                     GaitPosZ[GaitCurrentLegNr] = TravelLengthZ/2
                     GaitRotY[GaitCurrentLegNr] = TravelRotationY/2
@@ -243,7 +249,7 @@ def Gait(GaitCurrentLegNr):
     # Advance to the next step
     if LastLeg:     # The last leg in this step
         GaitStep = GaitStep+1
-        if GaitStep>StepsInGait:
+        if GaitStep > StepsInGait:
             GaitStep = 1
 
     return

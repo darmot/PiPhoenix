@@ -5,20 +5,6 @@ c2DEC = 100
 c4DEC = 10000
 c6DEC = 1000000
 
-# GetSinCos / ArcCos
-AngleDeg1       = None		# Input Angle in degrees, decimals = 1
-ABSAngleDeg1    = None		# Absolute value of the Angle in Degrees, decimals = 1
-Sin4            = None		# Output Sinus of the given Angle, decimals = 4
-Cos4            = None		# Output Cosinus of the given Angle, decimals = 4
-AngleRad4       = None		# Output Angle in radials, decimals = 4
-NegativeValue   = None      # If the the value is Negative
-
-# GetAtan2
-AtanX           = None		# Input X
-AtanY           = None		# Input Y
-Atan4           = None		# ArcTan2 output
-XYhyp2          = None		# Output presenting Hypotenuse of X and Y
-
 # --------------------------------------------------------------------
 # [TABLES]
 # ArcCosinus Table
@@ -56,10 +42,10 @@ GetSin = [0, 87, 174, 261, 348, 436, 523, 610, 697, 784, 871, 958, 1045, 1132, 1
 
 # --------------------------------------------------------------------
 # [GETARCCOS] Get the sinus and cosinus from the angle +/- multiple circles
-# Cos4    	- Input Cosinus
-# AngleRad4 	- Output Angle in AngleRad4
+# Cos4    	    - Input Cosinus
+# AngleRad4 	- Output Angle in radials, decimals = 4
 def GetArcCos(Cos4):
-    global AngleRad4, NegativeValue
+
     # Check for negative value
     if Cos4 < 0:
         Cos4 = -Cos4
@@ -96,23 +82,21 @@ def GetArcCos(Cos4):
 # ArcTan4  		- Output ARCTAN2(X/Y)
 # XYhyp2		- Output presenting Hypotenuse of X and Y
 def GetAtan2(AtanX, AtanY):
-    global XYhyp2
-    XYhyp2 = math.sqrt ((AtanX*AtanX*c4DEC) + (AtanY*AtanY*c4DEC))
-    GetArcCos(AtanX*c6DEC / XYhyp2)
+    XYhyp2 = math.sqrt((AtanX * AtanX * c4DEC) + (AtanY * AtanY * c4DEC))
+    AngleRad4 = GetArcCos(AtanX * c6DEC / XYhyp2)
 
-    Atan4 = AngleRad4 * (AtanY/abs(AtanY)) # Add sign
-    return Atan4
+    Atan4 = AngleRad4 * (AtanY / abs(AtanY))  # Add sign
+    return Atan4, XYhyp2
 
 
 # --------------------------------------------------------------------
 # [GETSINCOS] Get the sinus and cosinus from the angle +/- multiple circles
-# AngleDeg1 	- Input Angle in degrees
-# Sin4    	- Output Sinus of AngleDeg
-# Cos4  		- Output Cosinus of AngleDeg
+# AngleDeg1 	- Input Angle in degrees, decimals = 1
+# Sin4    	    - Output Sinus of the given Angle, decimals = 4
+# Cos4  		- Output Cosinus of the given Angle, decimals = 4
 def GetSinCos(AngleDeg1):
-    global ABSAngleDeg1
 
-    # Get the absolute value of AngleDeg
+    # Get the absolute value of the Angle in Degrees, decimals = 1
     if AngleDeg1 < 0:
         ABSAngleDeg1 = AngleDeg1 * (-1)
     else:
@@ -120,12 +104,12 @@ def GetSinCos(AngleDeg1):
 
     # Shift rotation to a full circle of 360 deg -> AngleDeg // 360
     if AngleDeg1 < 0:   # Negative values
-        AngleDeg1 = 3600-(ABSAngleDeg1-(3600*(ABSAngleDeg1/3600)))
+        AngleDeg1 = 3600 - (ABSAngleDeg1 - (3600 * (ABSAngleDeg1 / 3600)))
     else:				# Positive values
-        AngleDeg1 = ABSAngleDeg1-(3600*(ABSAngleDeg1/3600))
+        AngleDeg1 = ABSAngleDeg1 - (3600 * (ABSAngleDeg1 / 3600))
 
     if 0 <= AngleDeg1 <= 900:                   # 0 to 90 deg
-        Sin4 = GetSin[AngleDeg1/5] 			    # 5 is the presision (0.5) of the table
+        Sin4 = GetSin[AngleDeg1 / 5]		    # 5 is the presision (0.5) of the table
         Cos4 = GetSin[(900 - AngleDeg1) / 5]
 
     elif 900 < AngleDeg1 <= 1800:               # 90 to 180 deg
@@ -140,4 +124,4 @@ def GetSinCos(AngleDeg1):
         Sin4 = -GetSin[(3600-AngleDeg1)/5]      # 5 is the presision (0.5) of the table
         Cos4 = GetSin[(AngleDeg1-2700)/5]
 
-    return
+    return Sin4, Cos4

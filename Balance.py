@@ -16,14 +16,14 @@ def BalCalcOneLeg(PosX, PosZ, PosY, BalLegNr):
     TotalTransZ = TotalTransZ + TotalZ
     TotalTransX = TotalTransX + TotalX
 
-    GetAtan2(TotalX, TotalZ)
+    (Atan4, XYhyp2) = GetAtan2(TotalX, TotalZ)
     TotalYBal =  TotalYBal + (Atan4*180) / 31415
 
-    GetAtan2(TotalX, TotalY)
-    TotalZBal = TotalZBal + ((Atan4*180) / 31415) -90 # Rotate balance circle 90 deg
+    (Atan4, XYhyp2) = GetAtan2(TotalX, TotalY)
+    TotalZBal = TotalZBal + ((Atan4*180) / 31415) - 90  # Rotate balance circle 90 deg
 
-    GetAtan2(TotalZ, TotalY)
-    TotalXBal = TotalXBal + ((Atan4*180) / 31415) - 90 #Rotate balance circle 90 deg
+    (Atan4, XYhyp2) = GetAtan2(TotalZ, TotalY)
+    TotalXBal = TotalXBal + ((Atan4*180) / 31415) - 90  # Rotate balance circle 90 deg
 
     return
 
