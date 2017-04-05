@@ -1,5 +1,6 @@
-from IkRoutines import *
-from Gait import cLR, cLF, cLM, cRF, cRM,cRR
+from Phoenix import SLHold
+from IkRoutines import LegPosX, LegPosY, LegPosZ, cInitPosX, cInitPosY, cInitPosZ
+from Gait import cLR, cLF, cLM, cRF, cRM, cRR
 
 # [Single Leg Control]
 SelectedLeg = None
@@ -26,8 +27,8 @@ def SingleLegControl():
 
     # Check if all legs are down
     AllDown = LegPosY[cRF] == cInitPosY[cRF] and LegPosY[cRM] == cInitPosY[cRM] \
-              and LegPosY[cRR] == cInitPosY[cRR] and LegPosY[cLR] == cInitPosY[cLR] \
-              and LegPosY[cLM] == cInitPosY[cLM] and LegPosY[cLF] == cInitPosY[cLF]
+        and LegPosY[cRR] == cInitPosY[cRR] and LegPosY[cLR] == cInitPosY[cLR] \
+        and LegPosY[cLM] == cInitPosY[cLM] and LegPosY[cLF] == cInitPosY[cLF]
 
     if 0 <= SelectedLeg <= 5:
         if SelectedLeg != Prev_SelectedLeg:

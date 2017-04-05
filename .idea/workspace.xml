@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="4272ccd7-16a9-4a65-a493-440af83bfe0f" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Balance.py" afterPath="$PROJECT_DIR$/Balance.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/IkRoutines.py" afterPath="$PROJECT_DIR$/IkRoutines.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Phoenix.py" afterPath="$PROJECT_DIR$/Phoenix.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SingleLeg.py" afterPath="$PROJECT_DIR$/SingleLeg.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -23,25 +21,13 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Balance.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Balance.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="18" column="48" lean-forward="true" selection-start-line="18" selection-start-column="48" selection-end-line="18" selection-end-column="48" />
-              <folding>
-                <element signature="e#0#128#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SingleLeg.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="SingleLeg.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SingleLeg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
-              <caret line="2" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+            <state relative-caret-position="17">
+              <caret line="13" column="29" lean-forward="true" selection-start-line="13" selection-start-column="29" selection-end-line="13" selection-end-column="29" />
               <folding>
-                <element signature="e#0#24#0" expanded="true" />
+                <element signature="e#0#26#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -79,11 +65,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Phoenix.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Phoenix.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Phoenix.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="112" column="15" lean-forward="true" selection-start-line="112" selection-start-column="15" selection-end-line="112" selection-end-column="15" />
+            <state relative-caret-position="136">
+              <caret line="142" column="25" lean-forward="false" selection-start-line="142" selection-start-column="25" selection-end-line="142" selection-end-column="25" />
               <folding>
                 <element signature="e#1199#1210#0" expanded="true" />
               </folding>
@@ -124,7 +110,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>XYhyp2</find>
       <find>Atan4</find>
       <find>IKSolution</find>
       <find>cCoxaAngle1</find>
@@ -154,6 +139,7 @@
       <find>TotalZBal</find>
       <find>BodyPosX</find>
       <find>BodyRotX</find>
+      <find>SLHold</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;$1&quot;</replace>
@@ -193,7 +179,6 @@
         <option value="$PROJECT_DIR$/PS2Controller.py" />
         <option value="$PROJECT_DIR$/PS2ControllerConstants.py" />
         <option value="$PROJECT_DIR$/TestSerial.py" />
-        <option value="$PROJECT_DIR$/SingleLeg.py" />
         <option value="$PROJECT_DIR$/PhoenixControlPs2.py" />
         <option value="$PROJECT_DIR$/Sample.py" />
         <option value="$PROJECT_DIR$/TestRigShift.py" />
@@ -204,6 +189,7 @@
         <option value="$PROJECT_DIR$/Balance.py" />
         <option value="$PROJECT_DIR$/Phoenix.py" />
         <option value="$PROJECT_DIR$/IkRoutines.py" />
+        <option value="$PROJECT_DIR$/SingleLeg.py" />
       </list>
     </option>
   </component>
@@ -519,7 +505,14 @@
       <option name="project" value="LOCAL" />
       <updated>1491244890046</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Argumentlisten und imports in Balance.py gerade gezogen">
+      <created>1491416986643</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1491416986643</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TodoView">
@@ -542,10 +535,10 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32914925" sideWeight="0.49435824" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23988843" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25143266" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25143266" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Inspection Results" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32914925" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.35564855" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25358167" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25358167" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -602,7 +595,8 @@
     <MESSAGE value="Introduced Init() and MainLoop functions" />
     <MESSAGE value="Argumentlisten und imports in Servo.py gerade gezogen" />
     <MESSAGE value="Argumentlisten und imports in IkRoutines.py und Trig.py gerade gezogen" />
-    <option name="LAST_COMMIT_MESSAGE" value="Argumentlisten und imports in IkRoutines.py und Trig.py gerade gezogen" />
+    <MESSAGE value="Argumentlisten und imports in Balance.py gerade gezogen" />
+    <option name="LAST_COMMIT_MESSAGE" value="Argumentlisten und imports in Balance.py gerade gezogen" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -662,7 +656,7 @@
         <state relative-caret-position="799">
           <caret line="48" column="66" lean-forward="true" selection-start-line="48" selection-start-column="66" selection-end-line="48" selection-end-column="66" />
           <folding>
-            <element signature="e#0#24#0" expanded="true" />
+            <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -903,16 +897,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/SingleLeg.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#24#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Sample.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="39">
@@ -995,10 +979,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Phoenix.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="112" column="15" lean-forward="true" selection-start-line="112" selection-start-column="15" selection-end-line="112" selection-end-column="15" />
+        <state relative-caret-position="136">
+          <caret line="142" column="25" lean-forward="false" selection-start-line="142" selection-start-column="25" selection-end-line="142" selection-end-column="25" />
           <folding>
             <element signature="e#1199#1210#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SingleLeg.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="13" column="29" lean-forward="true" selection-start-line="13" selection-start-column="29" selection-end-line="13" selection-end-column="29" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>
