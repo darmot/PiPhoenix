@@ -1,12 +1,11 @@
-from IkRoutines import *
+from IkRoutines import cOffsetZ, cOffsetX, BalanceMode, LegPosX, LegPosY, LegPosZ, GaitPosX, GaitPosY, GaitPosZ, \
+    cInitPosY
+from Trig import GetAtan2
+
 
 # --------------------------------------------------------------------
 # [BalCalcOneLeg]
-BalLegNr = None
-
-
-def BalCalcOneLeg(PosX, PosZ, PosY, BalLegNr):
-    global TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal
+def BalCalcOneLeg(PosX, PosZ, PosY, TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal, BalLegNr):
 
     # Calculating totals from center of the body to the feet
     TotalZ = cOffsetZ[BalLegNr]+PosZ
@@ -25,13 +24,12 @@ def BalCalcOneLeg(PosX, PosZ, PosY, BalLegNr):
     (Atan4, XYhyp2) = GetAtan2(TotalZ, TotalY)
     TotalXBal = TotalXBal + ((Atan4*180) / 31415) - 90  # Rotate balance circle 90 deg
 
-    return
+    return TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal
 
 
 # --------------------------------------------------------------------
 # [BalanceBody]
-def BalanceBody():
-    global TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalXBal, TotalZBal
+def BalanceBody(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal):
 
     TotalTransZ = TotalTransZ/6
     TotalTransX = TotalTransX/6
@@ -53,13 +51,12 @@ def BalanceBody():
     TotalXBal = -TotalXBal/6
     TotalZBal = TotalZBal/6
 
-    return
+    return TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal
 
 
 # --------------------------------------------------------------------
 # [CalcBalance]
 def CalcBalance():
-    global TotalTransX, TotalTransY, TotalTransZ, TotalXBal, TotalYBal, TotalZBal
 
     TotalTransX = 0     # reset values used for calculation of balance
     TotalTransZ = 0
@@ -69,17 +66,24 @@ def CalcBalance():
     TotalZBal = 0
     if BalanceMode > 0:
         for LegIndex in range(0, 3):     # balance calculations for all Right legs
-            BalCalcOneLeg(-LegPosX[LegIndex]+GaitPosX[LegIndex],
-                          LegPosZ[LegIndex]+GaitPosZ[LegIndex],
-                          [LegPosY[LegIndex]-cInitPosY[LegIndex]]+GaitPosY[LegIndex],
-                          LegIndex)
+            (TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal) \
+                = BalCalcOneLeg(-LegPosX[LegIndex]+GaitPosX[LegIndex],
+                                LegPosZ[LegIndex]+GaitPosZ[LegIndex],
+                                [LegPosY[LegIndex]-cInitPosY[LegIndex]]+GaitPosY[LegIndex],
+                                TotalTransX, TotalTransY, TotalTransZ,
+                                TotalYBal, TotalZBal, TotalXBal,
+                                LegIndex)
 
         for LegIndex in range(3, 6):     # balance calculations for all Left legs
-            BalCalcOneLeg(LegPosX[LegIndex]+GaitPosX[LegIndex],
-                          LegPosZ[LegIndex]+GaitPosZ[LegIndex],
-                          [LegPosY[LegIndex]-cInitPosY[LegIndex]]+GaitPosY[LegIndex],
-                          LegIndex)
+            (TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal) \
+                = BalCalcOneLeg(LegPosX[LegIndex]+GaitPosX[LegIndex],
+                                LegPosZ[LegIndex]+GaitPosZ[LegIndex],
+                                [LegPosY[LegIndex]-cInitPosY[LegIndex]]+GaitPosY[LegIndex],
+                                TotalTransX, TotalTransY, TotalTransZ,
+                                TotalYBal, TotalZBal, TotalXBal,
+                                LegIndex)
 
-        BalanceBody()
+        (TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal) \
+            = BalanceBody(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal)
         
-    return
+    return TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal

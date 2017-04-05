@@ -139,14 +139,26 @@ def MainLoop():
         if GPEnable:
             Servo.GPPlayer(GPStart, GPSeq)
 
-        SingleLeg.SingleLegControl() 	# Single leg control
-        Gait.GaitSeq()  			# Gait
-        Balance.CalcBalance()  		# Balance calculations
-        IkRoutines.CalcIK()  			# calculate inverse kinematic
-        Servo.CheckAngles()  		# Check mechanical limits
+        # Single leg control
+        SingleLeg.SingleLegControl()
+
+        # Gait
+        Gait.GaitSeq()
+
+        # Balance calculations
+        (TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal) \
+            = Balance.CalcBalance()
+
+        # calculate inverse kinematic
+        IkRoutines.CalcIK(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal)
+
+        # Check mechanical limits
+        Servo.CheckAngles()
+
+        # Drive Servos
         (Eyes, SSCTime, PrevSSCTime) \
             = Servo.ServoDriverMain(Eyes, SSCTime, PrevSSCTime, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl,
-                                    lTimerStart)  	# Drive Servos
+                                    lTimerStart)
     
         # Store previous HexOn State
         if HexOn:

@@ -48,12 +48,6 @@ TibiaAngle1 = [None] * 6  # Actual Angle of the knee, decimals = 1
 # --------------------------------------------------------------------
 # [Balance]
 BalanceMode = None
-TotalTransX = None
-TotalTransZ = None
-TotalTransY = None
-TotalYbal = None
-TotalXBal = None
-TotalZBal = None
 TotalY = None  # Total Y distance between the center of the body and the feet
 
 
@@ -73,7 +67,7 @@ TotalY = None  # Total Y distance between the center of the body and the feet
 # BodyIKPosX       - Output Position X of feet with Rotation
 # BodyIKPosY       - Output Position Y of feet with Rotation
 # BodyIKPosZ       - Output Position Z of feet with Rotation
-def BodyIK(PosX, PosZ, PosY, RotationY, BodyIKLeg):
+def BodyIK(PosX, PosZ, PosY, TotalYBal, TotalZBal, TotalXBal, RotationY, BodyIKLeg):
 
     # Calculating totals from center of the body to the feet
     TotalZ = cOffsetZ[BodyIKLeg] + PosZ  # Total Z distance between the center of the body and the feet
@@ -89,7 +83,7 @@ def BodyIK(PosX, PosZ, PosY, RotationY, BodyIKLeg):
 
     (SinB4, CosB4) = GetSinCos((BodyRotZ + TotalZBal) * c1DEC)
 
-    (SinA4, CosA4) = GetSinCos((BodyRotY + RotationY + TotalYbal) * c1DEC)
+    (SinA4, CosA4) = GetSinCos((BodyRotY + RotationY + TotalYBal) * c1DEC)
 
     # Calcualtion of rotation matrix:
     # BodyIKPosX = TotalX - (TotalX*CosA*CosB - TotalZ*CosB*SinA + PosY*SinB)
@@ -172,7 +166,8 @@ def LegIK(IKFeetPosX, IKFeetPosY, IKFeetPosZ, defaultCoxaAngle, IKSolution, IKSo
 
 # --------------------------------------------------------------------
 # [CALC INVERSE KINEMATIC] Calculates inverse kinematic
-def CalcIK():
+def CalcIK(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal):
+
     # Reset IKsolution indicators
     IKSolution = 0
     IKSolutionWarning = 0
@@ -184,6 +179,7 @@ def CalcIK():
             BodyIK(-LegPosX[LegIndex] + BodyPosX + GaitPosX[LegIndex] - TotalTransX,
                    LegPosZ[LegIndex] + BodyPosZ + GaitPosZ[LegIndex] - TotalTransZ,
                    LegPosY[LegIndex] + BodyPosY + GaitPosY[LegIndex] - TotalTransY,
+                   TotalYBal, TotalZBal, TotalXBal,
                    GaitRotY[LegIndex], LegIndex)
         (IKSolution, IKSolutionWarning, IKSolutionError,
          CoxaAngle1[LegIndex], FemurAngle1[LegIndex], TibiaAngle1[LegIndex]) = \
@@ -198,6 +194,7 @@ def CalcIK():
             BodyIK(LegPosX[LegIndex] - BodyPosX + GaitPosX[LegIndex] - TotalTransX,
                    LegPosZ[LegIndex] + BodyPosZ + GaitPosZ[LegIndex] - TotalTransZ,
                    LegPosY[LegIndex] + BodyPosY + GaitPosY[LegIndex] - TotalTransY,
+                   TotalYBal, TotalZBal, TotalXBal,
                    GaitRotY[LegIndex], LegIndex)
         (IKSolution, IKSolutionWarning, IKSolutionError,
          CoxaAngle1[LegIndex], FemurAngle1[LegIndex], TibiaAngle1[LegIndex]) = \
