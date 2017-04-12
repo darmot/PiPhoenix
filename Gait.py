@@ -27,7 +27,6 @@ HalfLiftHeigth  = None  # If TRUE the outer positions of the ligted legs will be
 
 GaitInMotion    = None  # Temp to check if the gait is in motion
 StepsInGait     = None  # Number of steps in gait
-LastLeg         = None  # TRUE when the current leg is the last leg of the sequence
 GaitStep        = None 	# Actual Gait step
 
 GaitLegNr       = [None] * 6  # Init position of the leg
@@ -38,6 +37,7 @@ GaitLegNrIn     = None  # Input Number of the leg
 # --------------------------------------------------------------------
 def InitGait():
     global GaitType, LegLiftHeight, GaitStep
+
     GaitType = 0
     LegLiftHeight = 50
     GaitStep = 1
@@ -49,6 +49,7 @@ def InitGait():
 # --------------------------------------------------------------------
 def GaitSelect():
     global NrLiftedPos, HalfLiftHeigth, TLDivFactor, StepsInGait, NomGaitSpeed
+
     # Gait selector
     if GaitType == 0:     # Ripple Gait 6 steps
         GaitLegNr[cLR] = 1
@@ -170,25 +171,26 @@ def GaitSelect():
 # --------------------------------------------------------------------
 # [GAIT Sequence]
 def GaitSeq():
-    global LastLeg
+
     # Calculate Gait sequence
-    LastLeg = 0
+    LastLeg = 0  # TRUE when the current leg is the last leg of the sequence
     for LegIndex in range(0, 6):    # for all legs
         if LegIndex == 5:           # last leg
             LastLeg = 1
 
-        Gait(LegIndex)
+        Gait(LegIndex, LastLeg)
     return
 
 
 # --------------------------------------------------------------------
 # [GAIT]
-def Gait(GaitCurrentLegNr):
+def Gait(GaitCurrentLegNr, LastLeg):
     global GaitInMotion, TravelLengthX, TravelLengthZ, TravelRotationY, GaitStep
 
     # Check IF the Gait is in motion
     GaitInMotion = ((abs(TravelLengthX) > cTravelDeadZone)
-                    or (abs(TravelLengthZ) > cTravelDeadZone) or (abs(TravelRotationY) > cTravelDeadZone))
+                    or (abs(TravelLengthZ) > cTravelDeadZone)
+                    or (abs(TravelRotationY) > cTravelDeadZone))
 
     # Clear values under the cTravelDeadZone
     if GaitInMotion == 0:
@@ -199,8 +201,11 @@ def Gait(GaitCurrentLegNr):
     # Leg middle up position
     # Gait in motion														  Gait NOT in motion, return to home position
     if ((GaitInMotion and (NrLiftedPos == 1 or NrLiftedPos == 3) and GaitStep == GaitLegNr[GaitCurrentLegNr])
-        or (not GaitInMotion and GaitStep == GaitLegNr[GaitCurrentLegNr] and ((abs(GaitPosX[GaitCurrentLegNr]) > 2)
-            and (abs(GaitPosZ[GaitCurrentLegNr]) > 2) or (abs(GaitRotY[GaitCurrentLegNr]) > 2)))):   # Up
+        or (not GaitInMotion
+            and GaitStep == GaitLegNr[GaitCurrentLegNr]
+            and ((abs(GaitPosX[GaitCurrentLegNr]) > 2)
+                 and (abs(GaitPosZ[GaitCurrentLegNr]) > 2)
+                 or (abs(GaitRotY[GaitCurrentLegNr]) > 2)))):   # Up
         GaitPosX[GaitCurrentLegNr] = 0
         GaitPosY[GaitCurrentLegNr] = -LegLiftHeight
         GaitPosZ[GaitCurrentLegNr] = 0
@@ -210,8 +215,8 @@ def Gait(GaitCurrentLegNr):
         # Optional Half heigth Rear
         if (((NrLiftedPos == 2 and GaitStep == GaitLegNr[GaitCurrentLegNr])
                 or (NrLiftedPos == 3
-                and (GaitStep == GaitLegNr[GaitCurrentLegNr]-1
-                     or GaitStep == GaitLegNr[GaitCurrentLegNr]+(StepsInGait-1))))
+                    and (GaitStep == GaitLegNr[GaitCurrentLegNr] - 1
+                         or GaitStep == GaitLegNr[GaitCurrentLegNr] + (StepsInGait - 1))))
                 and GaitInMotion):
             GaitPosX[GaitCurrentLegNr] = -TravelLengthX/2
             GaitPosY[GaitCurrentLegNr] = -LegLiftHeight/(HalfLiftHeigth+1)
@@ -233,11 +238,11 @@ def Gait(GaitCurrentLegNr):
                 # Leg front down position
                 if (GaitStep == GaitLegNr[GaitCurrentLegNr] + NrLiftedPos
                         or GaitStep == GaitLegNr[GaitCurrentLegNr] - (StepsInGait-NrLiftedPos)) \
-                        and GaitPosY(GaitCurrentLegNr)<0:
+                        and GaitPosY(GaitCurrentLegNr) < 0:
                     GaitPosX[GaitCurrentLegNr] = TravelLengthX/2
                     GaitPosZ[GaitCurrentLegNr] = TravelLengthZ/2
                     GaitRotY[GaitCurrentLegNr] = TravelRotationY/2
-                    GaitPosY[GaitCurrentLegNr] = 0	# Only move leg down at once if terrain adaption is turned off
+                    GaitPosY[GaitCurrentLegNr] = 0  # Only move leg down at once if terrain adaption is turned off
 
                 # Move body forward
                 else:
