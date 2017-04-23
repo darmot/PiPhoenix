@@ -21,29 +21,29 @@ cSSC_BAUD      = 115200  # SSC32 BAUD rate
 # cEyesPin      con P8
 # --------------------------------------------------------------------
 # [SSC PIN NUMBERS]
-cRRCoxaPin     = "P0"    # Rear Right leg Hip Horizontal
-cRRFemurPin    = "P1"    # Rear Right leg Hip Vertical
-cRRTibiaPin    = "P2"    # Rear Right leg Knee
+cRRCoxaPin     = "0"    # Rear Right leg Hip Horizontal
+cRRFemurPin    = "1"    # Rear Right leg Hip Vertical
+cRRTibiaPin    = "2"    # Rear Right leg Knee
 
-cRMCoxaPin     = "P4"    # Middle Right leg Hip Horizontal
-cRMFemurPin    = "P5"    # Middle Right leg Hip Vertical
-cRMTibiaPin    = "P6"    # Middle Right leg Knee
+cRMCoxaPin     = "4"    # Middle Right leg Hip Horizontal
+cRMFemurPin    = "5"    # Middle Right leg Hip Vertical
+cRMTibiaPin    = "6"    # Middle Right leg Knee
 
-cRFCoxaPin     = "P8"    # Front Right leg Hip Horizontal
-cRFFemurPin    = "P9"    # Front Right leg Hip Vertical
-cRFTibiaPin    = "P10"   # Front Right leg Knee
+cRFCoxaPin     = "8"    # Front Right leg Hip Horizontal
+cRFFemurPin    = "9"    # Front Right leg Hip Vertical
+cRFTibiaPin    = "10"   # Front Right leg Knee
 
-cLRCoxaPin     = "P16"   # Rear Left leg Hip Horizontal
-cLRFemurPin    = "P17"   # Rear Left leg Hip Vertical
-cLRTibiaPin    = "P18"   # Rear Left leg Knee
+cLRCoxaPin     = "16"   # Rear Left leg Hip Horizontal
+cLRFemurPin    = "17"   # Rear Left leg Hip Vertical
+cLRTibiaPin    = "18"   # Rear Left leg Knee
 
-cLMCoxaPin     = "P20"   # Middle Left leg Hip Horizontal
-cLMFemurPin    = "P21"   # Middle Left leg Hip Vertical
-cLMTibiaPin    = "P22"   # Middle Left leg Knee
+cLMCoxaPin     = "20"   # Middle Left leg Hip Horizontal
+cLMFemurPin    = "21"   # Middle Left leg Hip Vertical
+cLMTibiaPin    = "22"   # Middle Left leg Knee
 
-cLFCoxaPin     = "P24"   # Front Left leg Hip Horizontal
-cLFFemurPin    = "P25"   # Front Left leg Hip Vertical
-cLFTibiaPin    = "P26"   # Front Left leg Knee
+cLFCoxaPin     = "24"   # Front Left leg Hip Horizontal
+cLFFemurPin    = "25"   # Front Left leg Hip Vertical
+cLFTibiaPin    = "26"   # Front Left leg Knee
 # --------------------------------------------------------------------
 # [MIN/MAX ANGLES]
 cRRCoxaMin1    = -750      # Mechanical limits of the Right Rear Leg

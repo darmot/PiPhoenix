@@ -3,7 +3,16 @@
 
 import time
 import serial
-from Config_Ch3r import *
+from Config_Ch3r import cRRCoxaPin, cRMCoxaPin, cRFCoxaPin, cLRCoxaPin, cLMCoxaPin, cLFCoxaPin, \
+    cRRFemurPin, cRMFemurPin, cRFFemurPin, cLRFemurPin, cLMFemurPin, cLFFemurPin, \
+    cRRTibiaPin, cRMTibiaPin, cRFTibiaPin, cLRTibiaPin, cLMTibiaPin, cLFTibiaPin, \
+    cRRCoxaMin1, cRMCoxaMin1, cRFCoxaMin1, cLRCoxaMin1, cLMCoxaMin1, cLFCoxaMin1, \
+    cRRCoxaMax1, cRMCoxaMax1, cRFCoxaMax1, cLRCoxaMax1, cLMCoxaMax1, cLFCoxaMax1, \
+    cRRFemurMin1, cRMFemurMin1, cRFFemurMin1, cLRFemurMin1, cLMFemurMin1, cLFFemurMin1, \
+    cRRFemurMax1, cRMFemurMax1, cRFFemurMax1, cLRFemurMax1, cLMFemurMax1, cLFFemurMax1, \
+    cRRTibiaMin1, cRMTibiaMin1, cRFTibiaMin1, cLRTibiaMin1, cLMTibiaMin1, cLFTibiaMin1, \
+    cRRTibiaMax1, cRMTibiaMax1, cRFTibiaMax1, cLRTibiaMax1, cLMTibiaMax1, cLFTibiaMax1, \
+    cSSC_BAUD
 from Gait import cLR, cLF, cLM, cRF, cRM, cRR, \
     TravelLengthX, TravelLengthZ, TravelRotationY, \
     NomGaitSpeed, cTravelDeadZone
@@ -12,7 +21,6 @@ from IkRoutines import GaitPosX, GaitPosY, GaitPosZ, GaitRotY, BalanceMode, \
     LegPosX, LegPosY, LegPosZ, \
     cInitPosX, cInitPosY, cInitPosZ
 from SingleLeg import AllDown
-from Phoenix import GetCurrentTime
 
 # SSC Pin numbers
 cCoxaPin = [cRRCoxaPin, cRMCoxaPin, cRFCoxaPin, cLRCoxaPin, cLMCoxaPin, cLFCoxaPin]
@@ -29,6 +37,28 @@ cTibiaMax1 = [cRRTibiaMax1, cRMTibiaMax1, cRFTibiaMax1, cLRTibiaMax1, cLMTibiaMa
 
 ser = None
 
+# --------------------------------------------------------------------
+# [TIMING]
+CycleTime           = None  # Total Cycle time (in milliseconds)
+lTimerStart         = None  # Start time of the calculation cycles (in milliseconds)
+lTimerEnd           = None  # End time of the calculation cycles (in milliseconds)
+PrevSSCTime         = None  # Previous time for the servo updates
+SSCTime             = None  # Time for servo updates
+
+# --------------------------------------------------------------------
+# [Simple function to get the current time in milliseconds ]
+def GetCurrentTime():
+    lCurrentTime = int(time.time()*1000)
+    return lCurrentTime                        # switched back to basic
+
+
+# --------------------------------------------------------------------
+# Startet den Timer
+def StartTimer():
+    global lTimerStart
+    lTimerStart = GetCurrentTime()
+    return
+
 
 # --------------------------------------------------------------------
 # [CHECK ANGLES] Checks the mechanical limits of the servos
@@ -42,7 +72,8 @@ def CheckAngles():
 
 # --------------------------------------------------------------------
 # [SERVO DRIVER MAIN] Updates the positions of the servos
-def ServoDriverMain(Eyes, SSCTime, PrevSSCTime, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl, lTimerStart):
+def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl):
+    global lTimerEnd, PrevSSCTime, SSCTime, CycleTime
 
     # print("ServoDriveMain: HexOn=%d, Prev_HexOn=%d\n" % (HexOn, Prev_HexOn))
 
@@ -91,7 +122,7 @@ def ServoDriverMain(Eyes, SSCTime, PrevSSCTime, HexOn, Prev_HexOn, InputTimeDela
             FreeServos()
             Eyes = 0
 
-    return Eyes, SSCTime, PrevSSCTime
+    return Eyes
 
 
 # --------------------------------------------------------------------
@@ -133,7 +164,9 @@ def FreeServos():
 def GetSSCVersion():
     pause(10)
     GPEnable = 0
+    print "vor serout ver"
     serout(["ver\r"])
+    print "nach serout ver"
     s = readline()
     if s.endswith("GP\r"):
         GPEnable = 1
@@ -160,15 +193,21 @@ def GetSSCVersion():
 # --------------------------------------------------------------------
 # [INIT SERVOS] Sets start positions for each leg
 def InitServos():
-    global ser
+    global ser, SSCTime
 
     for LegIndex in range(6):
         LegPosX[LegIndex] = cInitPosX[LegIndex]  # Set start positions for each leg
         LegPosY[LegIndex] = cInitPosY[LegIndex]
         LegPosZ[LegIndex] = cInitPosZ[LegIndex]
 
+    # SSC
+    SSCTime = 150
+
     ser = serial.Serial('/dev/ttyUSB0', cSSC_BAUD)
-    return
+    print "XXX"
+    GPEnable = GetSSCVersion()
+
+    return GPEnable
 
 
 # --------------------------------------------------------------------
@@ -201,7 +240,10 @@ def pause(milliseconds):
 
 # --------------------------------------------------------------------
 def serout(outputData):
+    print outputData
     x = reduce(lambda accu, d: accu + str(d), outputData)
+    print x
+    print "serout: x=%s" % x
     ser.write(x)
     return
 
@@ -214,7 +256,9 @@ def serin(inputData):
 
 # --------------------------------------------------------------------
 def readline():
+    print "readline 1"
     x = ser.read_until(serial.CR)
+    print "readline 2"
     return x
 
 
@@ -223,3 +267,5 @@ def readline():
 def sound(listOfDurationAndNotes):
     print listOfDurationAndNotes
     return
+
+

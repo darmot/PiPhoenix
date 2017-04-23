@@ -17,9 +17,9 @@ GaitType        = None  # Gait type
 NomGaitSpeed    = None  # Nominal speed of the gait
 
 LegLiftHeight   = None 	# Current Travel height
-TravelLengthX   = None  # Current Travel length X
-TravelLengthZ   = None  # Current Travel length Z
-TravelRotationY = None  # Current Travel Rotation Y
+TravelLengthX   = 0     # Current Travel length X
+TravelLengthZ   = 0     # Current Travel length Z
+TravelRotationY = 0     # Current Travel Rotation Y
 
 TLDivFactor     = None  # Number of steps that a leg is on the floor while walking
 NrLiftedPos     = None  # Number of positions that a single leg is lifted (1-3)
@@ -238,7 +238,7 @@ def Gait(GaitCurrentLegNr, LastLeg):
                 # Leg front down position
                 if (GaitStep == GaitLegNr[GaitCurrentLegNr] + NrLiftedPos
                         or GaitStep == GaitLegNr[GaitCurrentLegNr] - (StepsInGait-NrLiftedPos)) \
-                        and GaitPosY(GaitCurrentLegNr) < 0:
+                        and GaitPosY[GaitCurrentLegNr] < 0:
                     GaitPosX[GaitCurrentLegNr] = TravelLengthX/2
                     GaitPosZ[GaitCurrentLegNr] = TravelLengthZ/2
                     GaitRotY[GaitCurrentLegNr] = TravelRotationY/2

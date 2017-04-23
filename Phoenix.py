@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Project Lynxmotion Phoenix
 # Description: Phoenix software
 # Software version: V2.0
@@ -32,22 +35,17 @@
 # 	2. phoenix_V2x.bas
 # 	3. phoenix_Control_ps2.bas
 # ====================================================================
-import time
-import Gait
-import Servo
-import SingleLeg
 import Balance
+import Gait
 import IkRoutines
 import PhoenixControlPs2
-
+import Servo
+import SingleLeg
 # --------------------------------------------------------------------
 # [CONSTANTS]
+
 BUTTON_DOWN = 0
 BUTTON_UP   = 1
-
-# --------------------------------------------------------------------
-# [POSITIONS SINGLE LEG CONTROL]
-SLHold      = None		 	# Single leg control mode
 
 # --------------------------------------------------------------------
 # [INPUTS]
@@ -74,29 +72,13 @@ Eyes = None  # Eyes output
 # [VARIABLES]
 Index = None		# Index universal used
 
-# --------------------------------------------------------------------
-# [TIMING]
-lTimerStart         = None  # Start time of the calculation cycles (in milliseconds)
-lTimerEnd           = None 	# End time of the calculation cycles (in milliseconds)
-CycleTime           = None  # Total Cycle time (in milliseconds)
-
-SSCTime             = None  # Time for servo updates
-PrevSSCTime         = None  # Previous time for the servo updates
-
-InputTimeDelay      = None  # Delay that depends on the input to get the "sneaking" effect
 SpeedControl        = None  # Adjustible Delay
-# --------------------------------------------------------------------
-# [GLOABAL]
-HexOn               = None  # Switch to turn on Phoenix
-Prev_HexOn          = None  # Previous loop state
 
 
 # ====================================================================
 # [INIT]
 def Init():
-    global LedA, LedB, LedC, Eyes, SSCTime, HexOn, GPEnable
-
-    GPEnable = Servo.GetSSCVersion()
+    global LedA, LedB, LedC, Eyes, GPEnable
 
     # Turning off all the leds
     LedA = 0
@@ -104,7 +86,8 @@ def Init():
     LedC = 0
     Eyes = 0
   
-    Servo.InitServos()  		# Tars Init Positions
+    GPEnable = Servo.InitServos()  		# Tars Init Positions
+    print "InitServos: GPEnable=%d" % GPEnable
     SingleLeg.InitSingleLeg()
     IkRoutines.InitIK()
     Gait.InitGait()
@@ -113,22 +96,21 @@ def Init():
     PhoenixControlPs2.InitController()
 
     # SSC
-    SSCTime = 150
-    HexOn = 0
+    PhoenixControlPs2.HexOn = 0
     return
 
 
 # ====================================================================
 # [MAIN]
 def MainLoop():
-    global lTimerStart, Prev_HexOn, Eyes, SSCTime, PrevSSCTime
+    global Eyes
 
     # main:
     while 1:
         # time.sleep(1)  # pause 1000
 
         # Start time
-        lTimerStart = GetCurrentTime()
+        Servo.lTimerStart = Servo.GetCurrentTime()
   
         PhoenixControlPs2.ControlInput()		# Read input
   
@@ -156,15 +138,13 @@ def MainLoop():
         Servo.CheckAngles()
 
         # Drive Servos
-        (Eyes, SSCTime, PrevSSCTime) \
-            = Servo.ServoDriverMain(Eyes, SSCTime, PrevSSCTime, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl,
-                                    lTimerStart)
+        Eyes = Servo.ServoDriverMain(Eyes, PhoenixControlPs2.HexOn, PhoenixControlPs2.Prev_HexOn, PhoenixControlPs2.InputTimeDelay, SpeedControl)
     
         # Store previous HexOn State
-        if HexOn:
-            Prev_HexOn = 1
+        if PhoenixControlPs2.HexOn:
+            PhoenixControlPs2.Prev_HexOn = 1
         else:
-            Prev_HexOn = 0
+            PhoenixControlPs2.Prev_HexOn = 0
 
         # goto main
 
@@ -211,13 +191,6 @@ def WriteOutputs():
         pass
 
     return
-
-
-# --------------------------------------------------------------------
-# [Simple function to get the current time in milliseconds ]
-def GetCurrentTime():
-    lCurrentTime = int(time.time()*1000)
-    return lCurrentTime						# switched back to basic
 
 
 # --------------------------------------------------------------------

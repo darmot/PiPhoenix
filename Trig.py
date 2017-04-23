@@ -57,15 +57,15 @@ def GetArcCos(Cos4):
     Cos4 = max(Cos4, c4DEC)
 
     if 0 <= Cos4 < 9000:
-        AngleRad4 = GetACos[Cos4/79]            # 79=table resolution (1/127)
+        AngleRad4 = GetACos[int(Cos4/79)]            # 79=table resolution (1/127)
         AngleRad4 = AngleRad4*616/c1DEC         # 616=acos resolution (pi/2/255)
 
     elif 9000 <= Cos4 < 9900:
-        AngleRad4 = GetACos[(Cos4-9000)/8+114]  # 8=table resolution (0.1/127), 114 start address 2nd bytetable range
+        AngleRad4 = GetACos[int((Cos4-9000)/8)+114]  # 8=table resolution (0.1/127), 114 start address 2nd bytetable range
         AngleRad4 = AngleRad4*616/c1DEC         # 616=acos resolution (pi/2/255)
 
     elif 9900 <= Cos4 <= 10000:
-        AngleRad4 = GetACos[(Cos4-9900)/2+227]  # 2=table resolution (0.01/64), 227 start address 3rd bytetable range
+        AngleRad4 = GetACos[int((Cos4-9900)/2)+227]  # 2=table resolution (0.01/64), 227 start address 3rd bytetable range
         AngleRad4 = AngleRad4*616/c1DEC         # 616=acos resolution (pi/2/255)
 
     # Add negative sign
@@ -82,10 +82,16 @@ def GetArcCos(Cos4):
 # ArcTan4  		- Output ARCTAN2(X/Y)
 # XYhyp2		- Output presenting Hypotenuse of X and Y
 def GetAtan2(AtanX, AtanY):
+    print("GetAtan2 AtanX=%s, AtanY=%s" % (AtanX, AtanY))
+    
     XYhyp2 = math.sqrt((AtanX * AtanX * c4DEC) + (AtanY * AtanY * c4DEC))
     AngleRad4 = GetArcCos(AtanX * c6DEC / XYhyp2)
 
-    Atan4 = AngleRad4 * (AtanY / abs(AtanY))  # Add sign
+    if AtanY != 0:
+        Atan4 = AngleRad4 * (AtanY / abs(AtanY))  # Add sign
+    else:
+        Atan4 = AngleRad4
+        
     return Atan4, XYhyp2
 
 
@@ -109,19 +115,19 @@ def GetSinCos(AngleDeg1):
         AngleDeg1 = ABSAngleDeg1 - (3600 * (ABSAngleDeg1 / 3600))
 
     if 0 <= AngleDeg1 <= 900:                   # 0 to 90 deg
-        Sin4 = GetSin[AngleDeg1 / 5]		    # 5 is the presision (0.5) of the table
-        Cos4 = GetSin[(900 - AngleDeg1) / 5]
+        Sin4 = GetSin[int(AngleDeg1 / 5)]		    # 5 is the presision (0.5) of the table
+        Cos4 = GetSin[int((900 - AngleDeg1) / 5)]
 
     elif 900 < AngleDeg1 <= 1800:               # 90 to 180 deg
-        Sin4 = GetSin[(900-(AngleDeg1-900))/5]  # 5 is the presision (0.5) of the table
-        Cos4 = -GetSin[(AngleDeg1-900)/5]
+        Sin4 = GetSin[int((900-(AngleDeg1-900))/5)]  # 5 is the presision (0.5) of the table
+        Cos4 = -GetSin[int((AngleDeg1-900)/5)]
 
     elif 1800 < AngleDeg1 <= 2700:              # 180 to 270 deg
-        Sin4 = -GetSin[(AngleDeg1-1800)/5] 	    # 5 is the presision (0.5) of the table
-        Cos4 = -GetSin[(2700-AngleDeg1)/5]
+        Sin4 = -GetSin[int((AngleDeg1-1800)/5)] 	    # 5 is the presision (0.5) of the table
+        Cos4 = -GetSin[int((2700-AngleDeg1)/5)]
 
     elif 2700 < AngleDeg1 <= 3600:              # 270 to 360 deg
-        Sin4 = -GetSin[(3600-AngleDeg1)/5]      # 5 is the presision (0.5) of the table
-        Cos4 = GetSin[(AngleDeg1-2700)/5]
+        Sin4 = -GetSin[int((3600-AngleDeg1)/5)]      # 5 is the presision (0.5) of the table
+        Cos4 = GetSin[int((AngleDeg1-2700)/5)]
 
     return Sin4, Cos4

@@ -97,6 +97,19 @@ _commandPin = None
 _dataPin = None
 _clkPin = None
 _attnPin = None
+# --------------------------------------------------------------------
+# [POSITIONS SINGLE LEG CONTROL]
+SLHold = None  # Single leg control mode
+SLLegX = None
+SLLegY = None
+SLLegZ = None
+
+# --------------------------------------------------------------------
+# [GLOABAL]
+Prev_HexOn          = None  # Previous loop state
+HexOn               = None  # Switch to turn on Phoenix
+
+InputTimeDelay      = None  # Delay that depends on the input to get the "sneaking" effect
 
 _IsWiringpiInitialised = False
 
@@ -163,16 +176,18 @@ def ControlInput():
     global HexOn, Prev_HexOn, BodyPosX, BodyPosY, BodyPosZ, BodyRotX, BodyRotY, BodyRotZ, \
         TravelLengthX, TravelLengthZ, TravelRotationY, BodyYOffset, BodyYShift, SelectedLeg, \
         ControlMode, BalanceMode, SpeedControl, GaitType, DoubleTravelOn, WalkMethod, \
-        DoubleHeightOn, GPStart, SLHold, GPSeq, LegLiftHeight
+        DoubleHeightOn, GPStart, SLHold, GPSeq, LegLiftHeight, InputTimeDelay, SLLegX, SLLegY, SLLegZ
 
-    print("ControlInput: LB0=%0x, LB1=%0x\n" % LastButton[0], LastButton[1])
+    print("ControlInput: LB0=%0x, LB1=%0x\n" % (LastButton[0], LastButton[1]))
 
     DualShock[0:7] = transmitBytes([0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00])
     wiringpi.delay(10)
+    
+    print("DualShock[0:7]: %s" % ', '.join(map(lambda x: "%0x, " % x, DualShock[0:7])))
 
     #  Switch bot on/off
-    if (DualShock[1] & 0x08 == 0) and LastButton[0] & 0x08:  # Start Button test bit3
-        print("Start button: HexOn=%d, Prev_HexOn=%d\n" % HexOn, Prev_HexOn)
+    if (DualShock[1] & 0x08 == 0) and (LastButton[0] & 0x08 != 0):  # Start Button test bit3
+        print("Start button: HexOn=%d, Prev_HexOn=%d\n" % (HexOn, Prev_HexOn))
         if HexOn:
             # Turn off
             BodyPosX = 0
@@ -195,6 +210,8 @@ def ControlInput():
             # endif
     # endif
 
+    print("HexOn: %s" % HexOn)
+    
     if HexOn:
         # [SWITCH MODES]
 
@@ -301,9 +318,9 @@ def ControlInput():
         if ControlMode == WalkMode:
             # Switch gates
             if ((DualShock[1] & 0x01 == 0) and LastButton[0] & 0x01  # Select Button test bit0
-                    and abs(TravelLengthX) < cTravelDeadZone  # No movement
-                    and abs(TravelLengthZ) < cTravelDeadZone
-                    and abs(TravelRotationY * 2) < cTravelDeadZone):
+                and abs(TravelLengthX) < cTravelDeadZone  # No movement
+                and abs(TravelLengthZ) < cTravelDeadZone
+                and abs(TravelRotationY * 2) < cTravelDeadZone):
                 if GaitType < 7:
                     # Sound P9,[50\4000]
                     GaitType += 1
@@ -429,6 +446,7 @@ def ControlInput():
 
     # Calculate BodyPosY
     BodyPosY = min((BodyYOffset + BodyYShift), 0)
+    print("BodyPosY: %s" % BodyPosY)
 
     # Store previous state
     LastButton[0] = DualShock[1]
@@ -506,3 +524,5 @@ def transmitBytes(outbytes):
     wiringpi.delay(_readDelay)
 
     return result
+
+

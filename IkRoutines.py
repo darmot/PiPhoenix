@@ -25,10 +25,10 @@ sinG4 = None  # Sin buffer for BodyRotZ calculations
 cosG4 = None  # Cos buffer for BodyRotZ calculations
 
 # Gait
-GaitPosX = [None] * 6  # Array containing Relative X position corresponding to the Gait
-GaitPosY = [None] * 6  # Array containing Relative Y position corresponding to the Gait
-GaitPosZ = [None] * 6  # Array containing Relative Z position corresponding to the Gait
-GaitRotY = [None] * 6  # Array containing Relative Y rotation corresponding to the Gait
+GaitPosX = [0] * 6  # Array containing Relative X position corresponding to the Gait
+GaitPosY = [0] * 6  # Array containing Relative Y position corresponding to the Gait
+GaitPosZ = [0] * 6  # Array containing Relative Z position corresponding to the Gait
+GaitRotY = [0] * 6  # Array containing Relative Y rotation corresponding to the Gait
 
 # Body position
 BodyPosX = None  # Global Input for the position of the body
@@ -69,6 +69,10 @@ TotalY = None  # Total Y distance between the center of the body and the feet
 # BodyIKPosZ       - Output Position Z of feet with Rotation
 def BodyIK(PosX, PosZ, PosY, TotalYBal, TotalZBal, TotalXBal, RotationY, BodyIKLeg):
 
+    print("BodyIK PosX=%s, PosZ=%s, PosY=%s" % (PosX, PosZ, PosY))
+    print("BodyIK TotalYBal=%s, TotalZBal=%s, TotalXBal=%s" % (TotalYBal, TotalZBal, TotalXBal))   
+    print("BodyIK RotationY=%s, BodyIKLeg=%s" % (RotationY, BodyIKLeg)) 
+    
     # Calculating totals from center of the body to the feet
     TotalZ = cOffsetZ[BodyIKLeg] + PosZ  # Total Z distance between the center of the body and the feet
     TotalX = cOffsetX[BodyIKLeg] + PosX  # Total X distance between the center of the body and the feet
@@ -124,6 +128,9 @@ def BodyIK(PosX, PosZ, PosY, TotalYBal, TotalZBal, TotalXBal, RotationY, BodyIKL
 # CoxaAngle1			- Output Angle of Coxa in degrees
 def LegIK(IKFeetPosX, IKFeetPosY, IKFeetPosZ, defaultCoxaAngle, IKSolution, IKSolutionWarning, IKSolutionError):
 
+    print("LegIK IKFeetPosX=%s, IKFeetPosY=%s, IKFeetPosZ=%s" % (IKFeetPosX, IKFeetPosY, IKFeetPosZ))
+    print("LegIK defaultCoxaAngle=%s" % defaultCoxaAngle)
+    
     # Calculate IKCoxaAngle and IKFeetPosXZ
     (Atan4, XYhyp2) = GetAtan2(IKFeetPosX, IKFeetPosZ)
     CoxaAngle = ((Atan4 * 180) / 3141) + defaultCoxaAngle
@@ -173,8 +180,18 @@ def CalcIK(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBa
     IKSolutionWarning = 0
     IKSolutionError = 0
 
+    print("CalcIk LegPosX: %s" % ", ".join(map(lambda x: str(x), LegPosX)))
+    print("CalcIk LegPosY: %s" % ", ".join(map(lambda x: str(x), LegPosY)))
+    print("CalcIk LegPosZ: %s" % ", ".join(map(lambda x: str(x), LegPosZ)))
+    print("CalcIk BodyPos(XYZ): %s, %s, %s" % (BodyPosX, BodyPosY, BodyPosZ))
+    print("CalcIk TotalTrans(XYZ): %s, %s, %s" % (TotalTransX, TotalTransY, TotalTransZ))
+    print("CalcIk GaitPosX: %s" % ", ".join(map(lambda x: str(x), GaitPosX)))
+    print("CalcIk GaitPosY: %s" % ", ".join(map(lambda x: str(x), GaitPosY)))
+    print("CalcIk GaitPosZ: %s" % ", ".join(map(lambda x: str(x), GaitPosZ)))
+    
     # Do IK for all Right legs
     for LegIndex in range(3):
+        print("CalcIk: LegIndex=%d" % LegIndex)
         (BodyIKPosX, BodyIKPosY, BodyIKPosZ) = \
             BodyIK(-LegPosX[LegIndex] + BodyPosX + GaitPosX[LegIndex] - TotalTransX,
                    LegPosZ[LegIndex] + BodyPosZ + GaitPosZ[LegIndex] - TotalTransZ,

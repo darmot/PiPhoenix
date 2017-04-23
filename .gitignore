@@ -1,1 +1,17 @@
 /.project
+/Balance.pyc
+/Config_Ch3r.pyc
+/IkRoutines.pyc
+/PS2Controller.pyc
+/PS2ControllerConstants.pyc
+/Phoenix.pyc
+/PhoenixControlPs2.pyc
+/Sample.pyc
+/Servo.pyc
+/SingleLeg.pyc
+/TestRig.pyc
+/TestRigShift.pyc
+/TestRigSpi.pyc
+/TestSerial.pyc
+/Trig.pyc
+/Gait.pyc

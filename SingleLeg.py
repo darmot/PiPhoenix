@@ -1,13 +1,10 @@
-from Phoenix import SLHold
-from IkRoutines import LegPosX, LegPosY, LegPosZ, cInitPosX, cInitPosY, cInitPosZ
 from Gait import cLR, cLF, cLM, cRF, cRM, cRR
+from IkRoutines import LegPosX, LegPosY, LegPosZ, cInitPosX, cInitPosY, cInitPosZ
+from PhoenixControlPs2 import SLHold, SLLegX, SLLegY, SLLegZ
 
 # [Single Leg Control]
 SelectedLeg = None
 Prev_SelectedLeg = None
-SLLegX = None
-SLLegY = None
-SLLegZ = None
 AllDown = None
 
 
