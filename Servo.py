@@ -63,10 +63,22 @@ def StartTimer():
 # --------------------------------------------------------------------
 # [CHECK ANGLES] Checks the mechanical limits of the servos
 def CheckAngles():
+    print("CheckAngles: cCoxaMin1=[%s]" % ", ".join(map(lambda x: str(x), cCoxaMin1)))
+    print("CheckAngles: cCoxaMax1=[%s]" % ", ".join(map(lambda x: str(x), cCoxaMax1)))
+    print("CheckAngles: cFemurMin1=[%s]" % ", ".join(map(lambda x: str(x), cFemurMin1)))
+    print("CheckAngles: cFemurMax1=[%s]" % ", ".join(map(lambda x: str(x), cFemurMax1)))
+    print("CheckAngles: cTibiaMin1=[%s]" % ", ".join(map(lambda x: str(x), cTibiaMin1)))
+    print("CheckAngles: cTibiaMax1=[%s]" % ", ".join(map(lambda x: str(x), cTibiaMax1)))
+
     for LegIndex in range(6):
-        CoxaAngle1[LegIndex] = max(min(CoxaAngle1[LegIndex], cCoxaMin1[LegIndex]), cCoxaMax1[LegIndex])
-        FemurAngle1[LegIndex] = max(min(FemurAngle1[LegIndex], cFemurMin1[LegIndex]), cFemurMax1[LegIndex])
-        TibiaAngle1[LegIndex] = max(min(TibiaAngle1[LegIndex], cTibiaMin1[LegIndex]), cTibiaMax1[LegIndex])
+        CoxaAngle1[LegIndex] = min(max(CoxaAngle1[LegIndex], cCoxaMin1[LegIndex]), cCoxaMax1[LegIndex])
+        FemurAngle1[LegIndex] = min(max(FemurAngle1[LegIndex], cFemurMin1[LegIndex]), cFemurMax1[LegIndex])
+        TibiaAngle1[LegIndex] = min(max(TibiaAngle1[LegIndex], cTibiaMin1[LegIndex]), cTibiaMax1[LegIndex])
+
+    print("CheckAngles: CoxaAngle1=[%s]" % ", ".join(map(lambda x: str(x), CoxaAngle1)))
+    print("CheckAngles: FemurAngle1=[%s]" % ", ".join(map(lambda x: str(x), FemurAngle1)))
+    print("CheckAngles: TibiaAngle1=[%s]" % ", ".join(map(lambda x: str(x), TibiaAngle1)))
+    
     return
 
 
@@ -75,7 +87,7 @@ def CheckAngles():
 def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl):
     global lTimerEnd, PrevSSCTime, SSCTime, CycleTime
 
-    # print("ServoDriveMain: HexOn=%d, Prev_HexOn=%d\n" % (HexOn, Prev_HexOn))
+    print("ServoDriveMain: HexOn=%s, Prev_HexOn=%s\n" % (HexOn, Prev_HexOn))
 
     if HexOn:
         if HexOn and Prev_HexOn == 0:
@@ -164,9 +176,8 @@ def FreeServos():
 def GetSSCVersion():
     pause(10)
     GPEnable = 0
-    print "vor serout ver"
+    print "Check SSC-version"
     serout(["ver\r"])
-    print "nach serout ver"
     s = readline()
     if s.endswith("GP\r"):
         GPEnable = 1
@@ -203,8 +214,7 @@ def InitServos():
     # SSC
     SSCTime = 150
 
-    ser = serial.Serial('/dev/ttyUSB0', cSSC_BAUD)
-    print "XXX"
+    ser = serial.Serial('/dev/ttyUSB0', cSSC_BAUD, timeout=5)
     GPEnable = GetSSCVersion()
 
     return GPEnable
@@ -219,6 +229,7 @@ GPStatTime = 0
 
 
 def GPPlayer(GPStart, GPSeq):
+    print "GPPlayer: GPStart=%d, GPSeq=%d" % (GPStart, GPSeq)
     # Start sequence
     if GPStart == 1:
         serout(["PL0SQ", GPSeq, "ONCE\r"])  # Start sequence
@@ -258,14 +269,14 @@ def serin(inputData):
 def readline():
     print "readline 1"
     x = ser.read_until(serial.CR)
-    print "readline 2"
+    print "readline returned '%s'" % x
     return x
 
 
 # --------------------------------------------------------------------
 # list of tuples of duration in millisecvons and note in Hz (frequency)
 def sound(listOfDurationAndNotes):
-    print listOfDurationAndNotes
+    print "sound: ", listOfDurationAndNotes
     return
 
 

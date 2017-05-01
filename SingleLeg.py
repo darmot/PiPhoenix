@@ -11,9 +11,10 @@ AllDown = None
 # --------------------------------------------------------------------
 # Single leg control. Make sure no leg is selected
 def InitSingleLeg():
-    global SelectedLeg, Prev_SelectedLeg
+    global SelectedLeg, Prev_SelectedLeg    
     SelectedLeg = 255  # No Leg selected
     Prev_SelectedLeg = 255
+    print "InitSingleLeg: SelectedLeg=%d, Prev_SelectedLeg=%d" % (SelectedLeg, Prev_SelectedLeg)
     return
 
 
@@ -21,11 +22,13 @@ def InitSingleLeg():
 # [SINGLE LEG CONTROL]
 def SingleLegControl():
     global Prev_SelectedLeg, AllDown
-
+    
     # Check if all legs are down
     AllDown = LegPosY[cRF] == cInitPosY[cRF] and LegPosY[cRM] == cInitPosY[cRM] \
         and LegPosY[cRR] == cInitPosY[cRR] and LegPosY[cLR] == cInitPosY[cLR] \
         and LegPosY[cLM] == cInitPosY[cLM] and LegPosY[cLF] == cInitPosY[cLF]
+
+    print "SingleLegControl: AllDown=%s, SelectedLeg=%d, Prev_SelectedLeg=%d" % (AllDown, SelectedLeg, Prev_SelectedLeg)
 
     if 0 <= SelectedLeg <= 5:
         if SelectedLeg != Prev_SelectedLeg:
@@ -56,4 +59,7 @@ def SingleLegControl():
         if Prev_SelectedLeg != 255:
             Prev_SelectedLeg = 255
 
+    print "SingleLegControl: LegPosX=[%s]" % ', '.join(map(lambda x: "%d, " % x, LegPosX))
+    print "SingleLegControl: LegPosY=[%s]" % ', '.join(map(lambda x: "%d, " % x, LegPosY))
+    print "SingleLegControl: LegPosZ=[%s]" % ', '.join(map(lambda x: "%d, " % x, LegPosZ))
     return

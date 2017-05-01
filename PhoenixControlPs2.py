@@ -118,14 +118,17 @@ _IsWiringpiInitialised = False
 # [InitController] Initialize the PS2 controller
 def InitController():
     global _dataPin, _attnPin, _clkPin, _commandPin, BodyYOffset, BodyYShift, DS2Mode, _IsWiringpiInitialised
+    
     _attempts = 10
-
+        
     if not _IsWiringpiInitialised:
+        print "InitController: trying to initialise wiringpi"
         _IsWiringpiInitialised = True
         if wiringpi.wiringPiSetupGpio() == -1:
             print ("Unable to start wiringPi\n")
             return False
 
+    print "InitController: setting up pins"
     _commandPin = wiringpi.physPinToGpio(PS2CMD)
     _dataPin = wiringpi.physPinToGpio(PS2DAT)
     _clkPin = wiringpi.physPinToGpio(PS2CLK)
@@ -137,7 +140,9 @@ def InitController():
     wiringpi.pinMode(_attnPin, wiringpi.OUTPUT)  # Set attention pin to output
     wiringpi.pinMode(_clkPin, wiringpi.OUTPUT)  # Set clock pin to output
 
+    print "InitController: trying to set mode"
     while DS2Mode != PadMode and _attempts > 0:
+        print "InitController: attempt #",11-_attempts
         wiringpi.digitalWrite(_clkPin, 1)  # high PS2CLK
 
         LastButton[0] = 255
@@ -152,7 +157,7 @@ def InitController():
         DS2Mode = buf[1]
         wiringpi.delay(1)  # pause 1
 
-        print("DS2Mode=0x%0x, PadMode=0x%0x" % (DS2Mode, PadMode))
+        print("InitController: DS2Mode=0x%0x, PadMode=0x%0x" % (DS2Mode, PadMode))
         transmitBytes([0x01, 0x43, 0x00, 0x01, 0x00])  # CONFIG_MODE_ENTER0
         transmitBytes([0x01, 0x44, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00])  # SET_MODE_AND_LOCK
         transmitBytes([0x01, 0x4F, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x00, 0x00])  # SET_DS2_NATIVE_MODE
@@ -178,12 +183,12 @@ def ControlInput():
         ControlMode, BalanceMode, SpeedControl, GaitType, DoubleTravelOn, WalkMethod, \
         DoubleHeightOn, GPStart, SLHold, GPSeq, LegLiftHeight, InputTimeDelay, SLLegX, SLLegY, SLLegZ
 
-    print("ControlInput: LB0=%0x, LB1=%0x\n" % (LastButton[0], LastButton[1]))
+    print("ControlInput: LastButton[0]=%0x, LastButton[1]=%0x\n" % (LastButton[0], LastButton[1]))
 
     DualShock[0:7] = transmitBytes([0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00])
     wiringpi.delay(10)
     
-    print("DualShock[0:7]: %s" % ', '.join(map(lambda x: "%0x, " % x, DualShock[0:7])))
+    print("ControlInput: DualShock[0:7]=[%s]" % ', '.join(map(lambda x: "%0x, " % x, DualShock[0:7])))
 
     #  Switch bot on/off
     if (DualShock[1] & 0x08 == 0) and (LastButton[0] & 0x08 != 0):  # Start Button test bit3
@@ -210,7 +215,7 @@ def ControlInput():
             # endif
     # endif
 
-    print("HexOn: %s" % HexOn)
+    print("ControlInput: HexOn=%s" % HexOn)
     
     if HexOn:
         # [SWITCH MODES]
@@ -446,11 +451,12 @@ def ControlInput():
 
     # Calculate BodyPosY
     BodyPosY = min((BodyYOffset + BodyYShift), 0)
-    print("BodyPosY: %s" % BodyPosY)
+    print("ControlInput: BodyPosY=%s" % BodyPosY)
 
     # Store previous state
     LastButton[0] = DualShock[1]
     LastButton[1] = DualShock[2]
+    print("ControlInput: LastButton[0]=%0x, LastButton[1]=%0x\n" % (LastButton[0], LastButton[1]))
     return
 
 

@@ -70,8 +70,6 @@ LedC = None  # Orange
 Eyes = None  # Eyes output
 # --------------------------------------------------------------------
 # [VARIABLES]
-Index = None		# Index universal used
-
 SpeedControl        = None  # Adjustible Delay
 
 
@@ -93,8 +91,11 @@ def Init():
     Gait.InitGait()
 
     # Initialize Controller
-    PhoenixControlPs2.InitController()
-
+    success = PhoenixControlPs2.InitController()
+    print "InitController: success=%s" % success
+    if not success:
+        quit()
+        
     # SSC
     PhoenixControlPs2.HexOn = 0
     return

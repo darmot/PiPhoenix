@@ -46,6 +46,7 @@ GetSin = [0, 87, 174, 261, 348, 436, 523, 610, 697, 784, 871, 958, 1045, 1132, 1
 # AngleRad4 	- Output Angle in radials, decimals = 4
 def GetArcCos(Cos4):
 
+    print("GetArcCos: Cos4=%s" % Cos4)
     # Check for negative value
     if Cos4 < 0:
         Cos4 = -Cos4
@@ -72,6 +73,7 @@ def GetArcCos(Cos4):
     if NegativeValue:
         AngleRad4 = 31416 - AngleRad4
 
+    print("GetArcCos: AngleRad4=%s" % AngleRad4)
     return AngleRad4
 
 
@@ -82,7 +84,7 @@ def GetArcCos(Cos4):
 # ArcTan4  		- Output ARCTAN2(X/Y)
 # XYhyp2		- Output presenting Hypotenuse of X and Y
 def GetAtan2(AtanX, AtanY):
-    print("GetAtan2 AtanX=%s, AtanY=%s" % (AtanX, AtanY))
+    print("GetAtan2: AtanX=%s, AtanY=%s" % (AtanX, AtanY))
     
     XYhyp2 = math.sqrt((AtanX * AtanX * c4DEC) + (AtanY * AtanY * c4DEC))
     AngleRad4 = GetArcCos(AtanX * c6DEC / XYhyp2)
@@ -92,6 +94,7 @@ def GetAtan2(AtanX, AtanY):
     else:
         Atan4 = AngleRad4
         
+    print("GetAtan2: Atan4=%d, XYhyp2=%s" % (Atan4, XYhyp2))
     return Atan4, XYhyp2
 
 

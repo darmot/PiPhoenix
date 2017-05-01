@@ -43,6 +43,7 @@ def InitGait():
     GaitStep = 1
     # fall through to GaitSelect
     GaitSelect()
+    print "InitGait: GaitType=%d, legLiftHeight=%d, GaitStep=%d" % (GaitType, LegLiftHeight, GaitStep)
     return
 
 
@@ -165,6 +166,7 @@ def GaitSelect():
         StepsInGait = 18
         NomGaitSpeed = 85
 
+    print "GaitSelect: GaitType=%d" % GaitType
     return
 
 

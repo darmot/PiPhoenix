@@ -69,9 +69,9 @@ TotalY = None  # Total Y distance between the center of the body and the feet
 # BodyIKPosZ       - Output Position Z of feet with Rotation
 def BodyIK(PosX, PosZ, PosY, TotalYBal, TotalZBal, TotalXBal, RotationY, BodyIKLeg):
 
-    print("BodyIK PosX=%s, PosZ=%s, PosY=%s" % (PosX, PosZ, PosY))
-    print("BodyIK TotalYBal=%s, TotalZBal=%s, TotalXBal=%s" % (TotalYBal, TotalZBal, TotalXBal))   
-    print("BodyIK RotationY=%s, BodyIKLeg=%s" % (RotationY, BodyIKLeg)) 
+    print("BodyIK: PosX=%s, PosZ=%s, PosY=%s" % (PosX, PosZ, PosY))
+    print("BodyIK: TotalYBal=%s, TotalZBal=%s, TotalXBal=%s" % (TotalYBal, TotalZBal, TotalXBal))   
+    print("BodyIK: RotationY=%s, BodyIKLeg=%s" % (RotationY, BodyIKLeg)) 
     
     # Calculating totals from center of the body to the feet
     TotalZ = cOffsetZ[BodyIKLeg] + PosZ  # Total Z distance between the center of the body and the feet
@@ -112,6 +112,7 @@ def BodyIK(PosX, PosZ, PosY, TotalYBal, TotalZBal, TotalXBal, RotationY, BodyIKL
         / c4DEC * SinG4 / c4DEC + TotalZ * c2DEC * CosG4
         / c4DEC * SinA4 / c4DEC * SinB4 / c4DEC + PosY * c2DEC * CosB4 / c4DEC * CosG4 / c4DEC)) / c2DEC
 
+    print("BodyIK: BodyIKPosX=%s, BodyIKPosY=%s, BodyIKPosZ=%s" % (BodyIKPosX, BodyIKPosY, BodyIKPosZ)) 
     return BodyIKPosX, BodyIKPosY, BodyIKPosZ
 
 
@@ -128,8 +129,8 @@ def BodyIK(PosX, PosZ, PosY, TotalYBal, TotalZBal, TotalXBal, RotationY, BodyIKL
 # CoxaAngle1			- Output Angle of Coxa in degrees
 def LegIK(IKFeetPosX, IKFeetPosY, IKFeetPosZ, defaultCoxaAngle, IKSolution, IKSolutionWarning, IKSolutionError):
 
-    print("LegIK IKFeetPosX=%s, IKFeetPosY=%s, IKFeetPosZ=%s" % (IKFeetPosX, IKFeetPosY, IKFeetPosZ))
-    print("LegIK defaultCoxaAngle=%s" % defaultCoxaAngle)
+    print("LegIK: IKFeetPosX=%s, IKFeetPosY=%s, IKFeetPosZ=%s" % (IKFeetPosX, IKFeetPosY, IKFeetPosZ))
+    print("LegIK: defaultCoxaAngle=%s" % defaultCoxaAngle)
     
     # Calculate IKCoxaAngle and IKFeetPosXZ
     (Atan4, XYhyp2) = GetAtan2(IKFeetPosX, IKFeetPosZ)
@@ -168,6 +169,8 @@ def LegIK(IKFeetPosX, IKFeetPosY, IKFeetPosZ, defaultCoxaAngle, IKSolution, IKSo
         else:
             IKSolutionError = 1
 
+    print("LegIK: IKSolution=%s, IKSolutionWarning=%s, IKSolutionError=%s" % (IKSolution, IKSolutionWarning, IKSolutionError))
+    print("LegIK: CoxaAngle=%s, FemurAngle=%s, TibiaAngle=%s" % (CoxaAngle, FemurAngle, TibiaAngle))
     return IKSolution, IKSolutionWarning, IKSolutionError, CoxaAngle, FemurAngle, TibiaAngle
 
 
@@ -180,18 +183,19 @@ def CalcIK(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBa
     IKSolutionWarning = 0
     IKSolutionError = 0
 
-    print("CalcIk LegPosX: %s" % ", ".join(map(lambda x: str(x), LegPosX)))
-    print("CalcIk LegPosY: %s" % ", ".join(map(lambda x: str(x), LegPosY)))
-    print("CalcIk LegPosZ: %s" % ", ".join(map(lambda x: str(x), LegPosZ)))
-    print("CalcIk BodyPos(XYZ): %s, %s, %s" % (BodyPosX, BodyPosY, BodyPosZ))
-    print("CalcIk TotalTrans(XYZ): %s, %s, %s" % (TotalTransX, TotalTransY, TotalTransZ))
-    print("CalcIk GaitPosX: %s" % ", ".join(map(lambda x: str(x), GaitPosX)))
-    print("CalcIk GaitPosY: %s" % ", ".join(map(lambda x: str(x), GaitPosY)))
-    print("CalcIk GaitPosZ: %s" % ", ".join(map(lambda x: str(x), GaitPosZ)))
+    print("CalcIK: LegPosX=[%s]" % ", ".join(map(lambda x: str(x), LegPosX)))
+    print("CalcIK: LegPosY=[%s]" % ", ".join(map(lambda x: str(x), LegPosY)))
+    print("CalcIK: LegPosZ=[%s]" % ", ".join(map(lambda x: str(x), LegPosZ)))
+    print("CalcIK: BodyPos(XYZ): %s, %s, %s" % (BodyPosX, BodyPosY, BodyPosZ))
+    print("CalcIK: TotalTrans(XYZ): %s, %s, %s" % (TotalTransX, TotalTransY, TotalTransZ))
+    print("CalcIK: GaitPosX=[%s]" % ", ".join(map(lambda x: str(x), GaitPosX)))
+    print("CalcIK: GaitPosY=[%s]" % ", ".join(map(lambda x: str(x), GaitPosY)))
+    print("CalcIK: GaitPosZ=[%s]" % ", ".join(map(lambda x: str(x), GaitPosZ)))
     
     # Do IK for all Right legs
     for LegIndex in range(3):
-        print("CalcIk: LegIndex=%d" % LegIndex)
+        print("-----")
+        print("CalcIK: LegIndex=%d" % LegIndex)
         (BodyIKPosX, BodyIKPosY, BodyIKPosZ) = \
             BodyIK(-LegPosX[LegIndex] + BodyPosX + GaitPosX[LegIndex] - TotalTransX,
                    LegPosZ[LegIndex] + BodyPosZ + GaitPosZ[LegIndex] - TotalTransZ,
@@ -206,7 +210,9 @@ def CalcIK(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBa
                   cCoxaAngle1[LegIndex], IKSolution, IKSolutionWarning, IKSolutionError)
 
     # Do IK for all Left legs
-    for LegIndex in range(3, 5):
+    for LegIndex in range(3, 6):
+        print("-----")
+        print("CalcIK: LegIndex=%d" % LegIndex)
         (BodyIKPosX, BodyIKPosY, BodyIKPosZ) = \
             BodyIK(LegPosX[LegIndex] - BodyPosX + GaitPosX[LegIndex] - TotalTransX,
                    LegPosZ[LegIndex] + BodyPosZ + GaitPosZ[LegIndex] - TotalTransZ,
@@ -223,6 +229,10 @@ def CalcIK(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBa
     # Write IK errors to leds
     LedC = IKSolutionWarning
     LedA = IKSolutionError
+
+    print("CalcIK: CoxaAngle1=[%s]" % ", ".join(map(lambda x: str(x), CoxaAngle1)))
+    print("CalcIK: FemurAngle1=[%s]" % ", ".join(map(lambda x: str(x), FemurAngle1)))
+    print("CalcIK: TibiaAngle1=[%s]" % ", ".join(map(lambda x: str(x), TibiaAngle1)))
 
     return
 
@@ -241,4 +251,5 @@ def InitIK():
     BodyRotY = 0
     BodyRotZ = 0
     BalanceMode = 0
+    print "InitIK: Body-positions set to 0"
     return
