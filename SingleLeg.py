@@ -2,6 +2,10 @@ from Gait import cLR, cLF, cLM, cRF, cRM, cRR
 from IkRoutines import LegPosX, LegPosY, LegPosZ, cInitPosX, cInitPosY, cInitPosZ
 from PhoenixControlPs2 import SLHold, SLLegX, SLLegY, SLLegZ
 
+import logging
+
+log = logging.getLogger(__name__)
+
 # [Single Leg Control]
 SelectedLeg = None
 Prev_SelectedLeg = None
@@ -14,7 +18,7 @@ def InitSingleLeg():
     global SelectedLeg, Prev_SelectedLeg    
     SelectedLeg = 255  # No Leg selected
     Prev_SelectedLeg = 255
-    print "InitSingleLeg: SelectedLeg=%d, Prev_SelectedLeg=%d" % (SelectedLeg, Prev_SelectedLeg)
+    log.debug("InitSingleLeg: SelectedLeg=%d, Prev_SelectedLeg=%d" % (SelectedLeg, Prev_SelectedLeg))
     return
 
 
@@ -28,7 +32,7 @@ def SingleLegControl():
         and LegPosY[cRR] == cInitPosY[cRR] and LegPosY[cLR] == cInitPosY[cLR] \
         and LegPosY[cLM] == cInitPosY[cLM] and LegPosY[cLF] == cInitPosY[cLF]
 
-    print "SingleLegControl: AllDown=%s, SelectedLeg=%d, Prev_SelectedLeg=%d" % (AllDown, SelectedLeg, Prev_SelectedLeg)
+    log.debug("SingleLegControl: AllDown=%s, SelectedLeg=%d, Prev_SelectedLeg=%d" % (AllDown, SelectedLeg, Prev_SelectedLeg))
 
     if 0 <= SelectedLeg <= 5:
         if SelectedLeg != Prev_SelectedLeg:
@@ -59,7 +63,7 @@ def SingleLegControl():
         if Prev_SelectedLeg != 255:
             Prev_SelectedLeg = 255
 
-    print "SingleLegControl: LegPosX=[%s]" % ', '.join(map(lambda x: "%d, " % x, LegPosX))
-    print "SingleLegControl: LegPosY=[%s]" % ', '.join(map(lambda x: "%d, " % x, LegPosY))
-    print "SingleLegControl: LegPosZ=[%s]" % ', '.join(map(lambda x: "%d, " % x, LegPosZ))
+    log.debug("SingleLegControl: LegPosX=[%s]" % ', '.join(map(lambda x: "%d, " % x, LegPosX)))
+    log.debug("SingleLegControl: LegPosY=[%s]" % ', '.join(map(lambda x: "%d, " % x, LegPosY)))
+    log.debug("SingleLegControl: LegPosZ=[%s]" % ', '.join(map(lambda x: "%d, " % x, LegPosZ)))
     return

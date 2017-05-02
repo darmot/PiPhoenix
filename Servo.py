@@ -1,6 +1,7 @@
 # Build tables for Leg configuration like I/O and MIN/MAX values to easy access values using a FOR loop
 # Constants are still defined as single values in the cfg file to make it easy to read/configure
 
+import logging
 import time
 import serial
 from Config_Ch3r import cRRCoxaPin, cRMCoxaPin, cRFCoxaPin, cLRCoxaPin, cLMCoxaPin, cLFCoxaPin, \
@@ -21,6 +22,8 @@ from IkRoutines import GaitPosX, GaitPosY, GaitPosZ, GaitRotY, BalanceMode, \
     LegPosX, LegPosY, LegPosZ, \
     cInitPosX, cInitPosY, cInitPosZ
 from SingleLeg import AllDown
+
+log = logging.getLogger(__name__)
 
 # SSC Pin numbers
 cCoxaPin = [cRRCoxaPin, cRMCoxaPin, cRFCoxaPin, cLRCoxaPin, cLMCoxaPin, cLFCoxaPin]
@@ -63,21 +66,21 @@ def StartTimer():
 # --------------------------------------------------------------------
 # [CHECK ANGLES] Checks the mechanical limits of the servos
 def CheckAngles():
-    print("CheckAngles: cCoxaMin1=[%s]" % ", ".join(map(lambda x: str(x), cCoxaMin1)))
-    print("CheckAngles: cCoxaMax1=[%s]" % ", ".join(map(lambda x: str(x), cCoxaMax1)))
-    print("CheckAngles: cFemurMin1=[%s]" % ", ".join(map(lambda x: str(x), cFemurMin1)))
-    print("CheckAngles: cFemurMax1=[%s]" % ", ".join(map(lambda x: str(x), cFemurMax1)))
-    print("CheckAngles: cTibiaMin1=[%s]" % ", ".join(map(lambda x: str(x), cTibiaMin1)))
-    print("CheckAngles: cTibiaMax1=[%s]" % ", ".join(map(lambda x: str(x), cTibiaMax1)))
+    log.debug("CheckAngles: cCoxaMin1=[%s]" % ", ".join(map(lambda x: str(x), cCoxaMin1)))
+    log.debug("CheckAngles: cCoxaMax1=[%s]" % ", ".join(map(lambda x: str(x), cCoxaMax1)))
+    log.debug("CheckAngles: cFemurMin1=[%s]" % ", ".join(map(lambda x: str(x), cFemurMin1)))
+    log.debug("CheckAngles: cFemurMax1=[%s]" % ", ".join(map(lambda x: str(x), cFemurMax1)))
+    log.debug("CheckAngles: cTibiaMin1=[%s]" % ", ".join(map(lambda x: str(x), cTibiaMin1)))
+    log.debug("CheckAngles: cTibiaMax1=[%s]" % ", ".join(map(lambda x: str(x), cTibiaMax1)))
 
     for LegIndex in range(6):
         CoxaAngle1[LegIndex] = min(max(CoxaAngle1[LegIndex], cCoxaMin1[LegIndex]), cCoxaMax1[LegIndex])
         FemurAngle1[LegIndex] = min(max(FemurAngle1[LegIndex], cFemurMin1[LegIndex]), cFemurMax1[LegIndex])
         TibiaAngle1[LegIndex] = min(max(TibiaAngle1[LegIndex], cTibiaMin1[LegIndex]), cTibiaMax1[LegIndex])
 
-    print("CheckAngles: CoxaAngle1=[%s]" % ", ".join(map(lambda x: str(x), CoxaAngle1)))
-    print("CheckAngles: FemurAngle1=[%s]" % ", ".join(map(lambda x: str(x), FemurAngle1)))
-    print("CheckAngles: TibiaAngle1=[%s]" % ", ".join(map(lambda x: str(x), TibiaAngle1)))
+    log.debug("CheckAngles: CoxaAngle1=[%s]" % ", ".join(map(lambda x: str(x), CoxaAngle1)))
+    log.debug("CheckAngles: FemurAngle1=[%s]" % ", ".join(map(lambda x: str(x), FemurAngle1)))
+    log.debug("CheckAngles: TibiaAngle1=[%s]" % ", ".join(map(lambda x: str(x), TibiaAngle1)))
     
     return
 
@@ -87,7 +90,7 @@ def CheckAngles():
 def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl):
     global lTimerEnd, PrevSSCTime, SSCTime, CycleTime
 
-    print("ServoDriveMain: HexOn=%s, Prev_HexOn=%s\n" % (HexOn, Prev_HexOn))
+    log.debug("ServoDriveMain: HexOn=%s, Prev_HexOn=%s\n" % (HexOn, Prev_HexOn))
 
     if HexOn:
         if HexOn and Prev_HexOn == 0:
@@ -176,7 +179,7 @@ def FreeServos():
 def GetSSCVersion():
     pause(10)
     GPEnable = 0
-    print "Check SSC-version"
+    log.debug("Check SSC-version")
     serout(["ver\r"])
     s = readline()
     if s.endswith("GP\r"):
@@ -229,7 +232,7 @@ GPStatTime = 0
 
 
 def GPPlayer(GPStart, GPSeq):
-    print "GPPlayer: GPStart=%d, GPSeq=%d" % (GPStart, GPSeq)
+    log.debug("GPPlayer: GPStart=%d, GPSeq=%d" % (GPStart, GPSeq))
     # Start sequence
     if GPStart == 1:
         serout(["PL0SQ", GPSeq, "ONCE\r"])  # Start sequence
@@ -251,10 +254,9 @@ def pause(milliseconds):
 
 # --------------------------------------------------------------------
 def serout(outputData):
-    print outputData
+    log.debug(outputData)
     x = reduce(lambda accu, d: accu + str(d), outputData)
-    print x
-    print "serout: x=%s" % x
+    log.debug("serout: x=%s" % x)
     ser.write(x)
     return
 
@@ -267,16 +269,16 @@ def serin(inputData):
 
 # --------------------------------------------------------------------
 def readline():
-    print "readline 1"
+    log.debug("readline 1")
     x = ser.read_until(serial.CR)
-    print "readline returned '%s'" % x
+    log.debug("readline returned '%s'" % x)
     return x
 
 
 # --------------------------------------------------------------------
 # list of tuples of duration in millisecvons and note in Hz (frequency)
 def sound(listOfDurationAndNotes):
-    print "sound: ", listOfDurationAndNotes
+    log.debug("sound: ", listOfDurationAndNotes)
     return
 
 
