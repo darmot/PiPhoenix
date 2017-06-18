@@ -57,6 +57,10 @@ def GetArcCos(Cos4):
     else:
         NegativeValue = 0
 
+    if Cos4 >10000:
+        Cos4 = 10000
+        log.debug("GetArcCos: applied upper bound of 10000") 
+        
     # Limit Cos4 to his maximal value
     Cos4 = max(Cos4, c4DEC)
 

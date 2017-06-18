@@ -14,9 +14,7 @@ from Config_Ch3r import cRRCoxaPin, cRMCoxaPin, cRFCoxaPin, cLRCoxaPin, cLMCoxaP
     cRRTibiaMin1, cRMTibiaMin1, cRFTibiaMin1, cLRTibiaMin1, cLMTibiaMin1, cLFTibiaMin1, \
     cRRTibiaMax1, cRMTibiaMax1, cRFTibiaMax1, cLRTibiaMax1, cLMTibiaMax1, cLFTibiaMax1, \
     cSSC_BAUD
-from Gait import cLR, cLF, cLM, cRF, cRM, cRR, \
-    TravelLengthX, TravelLengthZ, TravelRotationY, \
-    NomGaitSpeed, cTravelDeadZone
+import Gait
 from IkRoutines import GaitPosX, GaitPosY, GaitPosZ, GaitRotY, BalanceMode, \
     CoxaAngle1, FemurAngle1, TibiaAngle1, \
     LegPosX, LegPosY, LegPosZ, \
@@ -87,7 +85,7 @@ def CheckAngles():
 
 # --------------------------------------------------------------------
 # [SERVO DRIVER MAIN] Updates the positions of the servos
-def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl):
+def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl, TravelLengthX, TravelLengthZ, TravelRotationY):
     global lTimerEnd, PrevSSCTime, SSCTime, CycleTime
 
     log.debug("ServoDriveMain: HexOn=%s, Prev_HexOn=%s\n" % (HexOn, Prev_HexOn))
@@ -97,11 +95,15 @@ def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl):
             sound([(60, 4000), (80, 4500), (100, 5000)])
             Eyes = 1
 
+        log.debug("ServoDriveMain: NomGaitSpeed=%d" % Gait.NomGaitSpeed)
+        log.debug("ServoDriveMain: InputTimeDelay=%d" % InputTimeDelay)
+        log.debug("ServoDriveMain: SpeedControl=%d" % SpeedControl)
+
         # Set SSC time
-        if abs(TravelLengthX) > cTravelDeadZone \
-                or abs(TravelLengthZ) > cTravelDeadZone \
-                or abs(TravelRotationY * 2) > cTravelDeadZone:
-            SSCTime = NomGaitSpeed + (InputTimeDelay * 2) + SpeedControl
+        if abs(TravelLengthX) > Gait.cTravelDeadZone \
+                or abs(TravelLengthZ) > Gait.cTravelDeadZone \
+                or abs(TravelRotationY * 2) > Gait.cTravelDeadZone:
+            SSCTime = Gait.NomGaitSpeed + (InputTimeDelay * 2) + SpeedControl
 
             # Add aditional delay when Balance mode is on
             if BalanceMode:
@@ -111,17 +113,19 @@ def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl):
             SSCTime = 200 + SpeedControl
 
             # Sync BAP with SSC while walking to ensure the prev is completed before sending the next one
-        if (GaitPosX[cRF] or GaitPosX[cRM] or GaitPosX[cRR] or GaitPosX[cLF] or GaitPosX[cLM] or GaitPosX[cLR] or
-                GaitPosY[cRF] or GaitPosY[cRM] or GaitPosY[cRR] or GaitPosY[cLF] or GaitPosY[cLM] or GaitPosY[cLR] or
-                GaitPosZ[cRF] or GaitPosZ[cRM] or GaitPosZ[cRR] or GaitPosZ[cLF] or GaitPosZ[cLM] or GaitPosZ[cLR] or
-                GaitRotY[cRF] or GaitRotY[cRM] or GaitRotY[cRR] or GaitRotY[cLF] or GaitRotY[cLM] or GaitRotY[cLR]):
+        if (GaitPosX[Gait.cRF] or GaitPosX[Gait.cRM] or GaitPosX[Gait.cRR] or GaitPosX[Gait.cLF] or GaitPosX[Gait.cLM] or GaitPosX[Gait.cLR] or
+                GaitPosY[Gait.cRF] or GaitPosY[Gait.cRM] or GaitPosY[Gait.cRR] or GaitPosY[Gait.cLF] or GaitPosY[Gait.cLM] or GaitPosY[Gait.cLR] or
+                GaitPosZ[Gait.cRF] or GaitPosZ[Gait.cRM] or GaitPosZ[Gait.cRR] or GaitPosZ[Gait.cLF] or GaitPosZ[Gait.cLM] or GaitPosZ[Gait.cLR] or
+                GaitRotY[Gait.cRF] or GaitRotY[Gait.cRM] or GaitRotY[Gait.cRR] or GaitRotY[Gait.cLF] or GaitRotY[Gait.cLM] or GaitRotY[Gait.cLR]):
             # Get endtime and calculate wait time
             lTimerEnd = GetCurrentTime()
             CycleTime = lTimerEnd - lTimerStart
 
+            log.debug("ServoDriverMain: PrevSSCTime=%d" % PrevSSCTime)
+            log.debug("ServoDriverMain: CycleTime=%d" % CycleTime)
             # Wait for previous commands to be completed while walking
             # Min 1 ensures that there always is a value in the  pause command
-            pause(min((PrevSSCTime - CycleTime - 45), 1))
+            pause(max((PrevSSCTime - CycleTime - 45), 1))
 
         PrevSSCTime = ServoDriver(SSCTime)
 
@@ -248,6 +252,7 @@ def GPPlayer(GPStart, GPSeq):
 
 # --------------------------------------------------------------------
 def pause(milliseconds):
+    log.debug("pause: milliseconds=%d" % milliseconds)
     time.sleep(milliseconds / 1000)
     return
 
@@ -278,7 +283,7 @@ def readline():
 # --------------------------------------------------------------------
 # list of tuples of duration in millisecvons and note in Hz (frequency)
 def sound(listOfDurationAndNotes):
-    log.debug("sound: ", listOfDurationAndNotes)
+    log.debug("sound: [%s]" % ', '.join(map(lambda t: "(%d, %d)" % t, listOfDurationAndNotes)))
     return
 
 

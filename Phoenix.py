@@ -41,6 +41,8 @@ import IkRoutines
 import PhoenixControlPs2
 import Servo
 import SingleLeg
+import time
+import logging
 # --------------------------------------------------------------------
 # [CONSTANTS]
 
@@ -70,7 +72,7 @@ LedC = None  # Orange
 Eyes = None  # Eyes output
 # --------------------------------------------------------------------
 # [VARIABLES]
-SpeedControl        = None  # Adjustible Delay
+SpeedControl        = 0  # Adjustible Delay
 
 
 # ====================================================================
@@ -106,14 +108,18 @@ def Init():
 def MainLoop():
     global Eyes
 
+    TravelLengthX   = 0     # Current Travel length X
+    TravelLengthZ   = 0     # Current Travel length Z
+    TravelRotationY = 0     # Current Travel Rotation Y
+
     # main:
     while 1:
-        # time.sleep(1)  # pause 1000
+        #time.sleep(0.5)  # pause 1000
 
         # Start time
-        Servo.lTimerStart = Servo.GetCurrentTime()
+        Servo.StartTimer()
   
-        PhoenixControlPs2.ControlInput()		# Read input
+        (TravelLengthX, TravelLengthZ, TravelRotationY) = PhoenixControlPs2.ControlInput(TravelLengthX, TravelLengthZ, TravelRotationY)		# Read input
   
         # ReadButtons()		# I/O used by the remote
         WriteOutputs()		# Write Outputs
@@ -126,7 +132,7 @@ def MainLoop():
         SingleLeg.SingleLegControl()
 
         # Gait
-        Gait.GaitSeq()
+        (TravelLengthX, TravelLengthZ, TravelRotationY) = Gait.GaitSeq(TravelLengthX, TravelLengthZ, TravelRotationY)
 
         # Balance calculations
         (TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal) \
@@ -139,7 +145,7 @@ def MainLoop():
         Servo.CheckAngles()
 
         # Drive Servos
-        Eyes = Servo.ServoDriverMain(Eyes, PhoenixControlPs2.HexOn, PhoenixControlPs2.Prev_HexOn, PhoenixControlPs2.InputTimeDelay, SpeedControl)
+        Eyes = Servo.ServoDriverMain(Eyes, PhoenixControlPs2.HexOn, PhoenixControlPs2.Prev_HexOn, PhoenixControlPs2.InputTimeDelay, SpeedControl, TravelLengthX, TravelLengthZ, TravelRotationY)
     
         # Store previous HexOn State
         if PhoenixControlPs2.HexOn:
@@ -196,5 +202,6 @@ def WriteOutputs():
 
 # --------------------------------------------------------------------
 # [Entry point]
+#logging.basicConfig(level=logging.DEBUG)
 Init()
 MainLoop()

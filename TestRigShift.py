@@ -89,10 +89,10 @@ DS2Mode 			= 0
 PS2Index			= 0
 BodyYOffset 		= 0
 BodyYShift			= 0
-ControlMode			= 0
-DoubleHeightOn		= 0
-DoubleTravelOn		= 0
-WalkMethod			= 0
+_ControlMode			= 0
+_DoubleHeightOn		= 0
+_DoubleTravelOn		= 0
+_WalkMethod			= 0
 #--------------------------------------------------------------------
 #[InitController] Initialize the PS2 controller
 def InitController():

@@ -62,8 +62,8 @@
 # 	- R2			Start Sequence
 # 
 # ====================================================================
-import wiringpi
-from Gait import cTravelDeadZone, cRF, GaitSelect, LegLiftHeight
+#import wiringpi
+from Gait import cTravelDeadZone, cRF, GaitSelect, LegLiftHeight, GaitType
 
 # [CONSTANTS]
 WalkMode = 0
@@ -87,10 +87,10 @@ DS2Mode = None
 PS2Index = None
 BodyYOffset = None
 BodyYShift = None
-ControlMode = None
-DoubleHeightOn = None
-DoubleTravelOn = None
-WalkMethod = None
+_ControlMode = None
+_DoubleHeightOn = None
+_DoubleTravelOn = None
+_WalkMethod = None
 # --------------------------------------------------------------------
 # [PS2 GPIO Pins The Controller Is Connected To As Used By WirinPi]
 _commandPin = None
@@ -117,7 +117,8 @@ _IsWiringpiInitialised = False
 # --------------------------------------------------------------------
 # [InitController] Initialize the PS2 controller
 def InitController():
-    global _dataPin, _attnPin, _clkPin, _commandPin, BodyYOffset, BodyYShift, DS2Mode, _IsWiringpiInitialised
+    global _dataPin, _attnPin, _clkPin, _commandPin, BodyYOffset, BodyYShift, DS2Mode, _IsWiringpiInitialised, _ControlMode, _WalkMethod, \
+        _DoubleTravelOn, _DoubleHeightOn
     
     _attempts = 10
         
@@ -170,6 +171,11 @@ def InitController():
     if DS2Mode != PadMode:
         return False
 
+    _ControlMode = WalkMode
+    _WalkMethod = 0
+    _DoubleTravelOn = 0
+    _DoubleHeightOn = 0
+    
     # goto InitController # Check if the remote is initialized correctly
     return True
 
@@ -177,22 +183,28 @@ def InitController():
 # --------------------------------------------------------------------
 # [ControlInput] reads the input data from the PS2 controller and processes the
 # data to the parameters.
-def ControlInput():
+def ControlInput(TravelLengthX, TravelLengthZ, TravelRotationY):
     global HexOn, Prev_HexOn, BodyPosX, BodyPosY, BodyPosZ, BodyRotX, BodyRotY, BodyRotZ, \
-        TravelLengthX, TravelLengthZ, TravelRotationY, BodyYOffset, BodyYShift, SelectedLeg, \
-        ControlMode, BalanceMode, SpeedControl, GaitType, DoubleTravelOn, WalkMethod, \
-        DoubleHeightOn, GPStart, SLHold, GPSeq, LegLiftHeight, InputTimeDelay, SLLegX, SLLegY, SLLegZ
+        BodyYOffset, BodyYShift, SelectedLeg, \
+        _ControlMode, BalanceMode, SpeedControl, GaitType, _DoubleTravelOn, _WalkMethod, \
+        _DoubleHeightOn, GPStart, SLHold, GPSeq, LegLiftHeight, InputTimeDelay, SLLegX, SLLegY, SLLegZ
 
     print("ControlInput: LastButton[0]=%0x, LastButton[1]=%0x\n" % (LastButton[0], LastButton[1]))
 
-    DualShock[0:7] = transmitBytes([0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00])
+    received1 = transmitBytes([0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+    print("ControlInput: received1=[%s]" % ', '.join(map(lambda x: "%0x" % x, received1)))
+    if (received1[1] == 0x79):
+        received2 = transmitBytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+        print("ControlInput: received2=[%s]" % ', '.join(map(lambda x: "%0x" % x, received2)))
+        
+    DualShock = received1[2:9];
     wiringpi.delay(10)
     
-    print("ControlInput: DualShock[0:7]=[%s]" % ', '.join(map(lambda x: "%0x, " % x, DualShock[0:7])))
+    print("ControlInput: DualShock[0:7]=[%s]" % ', '.join(map(lambda x: "%0x" % x, DualShock)))
 
     #  Switch bot on/off
     if (DualShock[1] & 0x08 == 0) and (LastButton[0] & 0x08 != 0):  # Start Button test bit3
-        print("Start button: HexOn=%d, Prev_HexOn=%d\n" % (HexOn, Prev_HexOn))
+        print("ControlInput: Start button: HexOn=%d, Prev_HexOn=%d\n" % (HexOn, Prev_HexOn))
         if HexOn:
             # Turn off
             BodyPosX = 0
@@ -212,7 +224,7 @@ def ControlInput():
         else:
             # Turn on
             HexOn = 1
-            # endif
+        # endif
     # endif
 
     print("ControlInput: HexOn=%s" % HexOn)
@@ -223,56 +235,57 @@ def ControlInput():
         # Translate mode
         if (DualShock[2] & 0x04 == 0) and LastButton[1] & 0x04:  # L1 Button test bit2
             # sound p9, [50\4000]
-            if ControlMode != TranslateMode:
-                ControlMode = TranslateMode
+            if _ControlMode != TranslateMode:
+                _ControlMode = TranslateMode
             else:
                 if SelectedLeg == 255:
-                    ControlMode = WalkMode
+                    _ControlMode = WalkMode
                 else:
-                    ControlMode = SingleLegMode
-                    # endif
-                    # endif
+                    _ControlMode = SingleLegMode
+                # endif
+            # endif
         # endif
 
         # Rotate mode
         if (DualShock[2] & 0x01 == 0) and LastButton[1] & 0x01:  # L2 Button test bit0
             # sound p9, [50\4000]
-            if ControlMode != RotateMode:
-                ControlMode = RotateMode
+            if _ControlMode != RotateMode:
+                _ControlMode = RotateMode
             else:
                 if SelectedLeg == 255:
-                    ControlMode = WalkMode
+                    _ControlMode = WalkMode
                 else:
-                    ControlMode = SingleLegMode
-                    # endif
-                    # endif
+                    _ControlMode = SingleLegMode
+                # endif
+            # endif
         # endif
 
         # Single leg mode
-        if (DualShock[2] % 0x20 == 0) and LastButton[1] & 0x20:  # Circle Button test bit5
+        if (DualShock[2] & 0x20 == 0) and LastButton[1] & 0x20:  # Circle Button test bit5
             if abs(TravelLengthX) < cTravelDeadZone and abs(TravelLengthZ) < cTravelDeadZone and abs(
                             TravelRotationY * 2) < cTravelDeadZone:
                 # Sound P9,[50\4000]
-                if ControlMode != SingleLegMode:
-                    ControlMode = SingleLegMode
+                if _ControlMode != SingleLegMode:
+                    _ControlMode = SingleLegMode
                     if SelectedLeg == 255:  # Select leg if none is selected
                         SelectedLeg = cRF  # Startleg
+                    #endif
                 else:
-                    ControlMode = WalkMode
+                    _ControlMode = WalkMode
                     SelectedLeg = 255
-                    # endif
-                    # endif
+                # endif
+            # endif
         # endif
 
         # GP Player mode
         if (DualShock[2] & 0x40 == 0) and LastButton[1] & 0x40:  # Cross Button test bit6
             # Sound P9,[50\4000]
-            if ControlMode != GPPlayerMode:
-                ControlMode = GPPlayerMode
+            if _ControlMode != GPPlayerMode:
+                _ControlMode = GPPlayerMode
                 GPSeq = 0
             else:
-                ControlMode = WalkMode
-                # endif
+                _ControlMode = WalkMode
+            # endif
         # endif
 
         # [Common functions]
@@ -285,7 +298,7 @@ def ControlInput():
             else:
                 # sound P9,[100\4000, 50\8000]
                 pass
-                # endif
+            # endif
         # endif
 
         # Stand up, sit down
@@ -294,7 +307,7 @@ def ControlInput():
                 BodyYOffset = 0
             else:
                 BodyYOffset = 35
-                # endif
+            # endif
         # endif
 
         if (DualShock[1] & 0x10 == 0) and LastButton[0] & 0x10:  # D-Up Button test bit4
@@ -309,18 +322,19 @@ def ControlInput():
             if SpeedControl > 0:
                 SpeedControl -= 50
                 # sound p9, [50\4000]
-                # endif
+            # endif
         # endif
 
         if (DualShock[1] & 0x80 == 0) and LastButton[0] & 0x80:  # D-Left Button test bit7
             if SpeedControl < 2000:
                 SpeedControl += 50
                 # sound p9, [50\4000]
-                # endif
+            # endif
         # endif
 
         # [Walk functions]
-        if ControlMode == WalkMode:
+        if _ControlMode == WalkMode:
+            print("ControlInput: _ControlMode == WalkMode")
             # Switch gates
             if ((DualShock[1] & 0x01 == 0) and LastButton[0] & 0x01  # Select Button test bit0
                 and abs(TravelLengthX) < cTravelDeadZone  # No movement
@@ -342,45 +356,49 @@ def ControlInput():
             # Double leg lift height
             if (DualShock[2] & 0x08 == 0) and LastButton[1] & 0x08:  # R1 Button test bit3
                 # sound p9, [50\4000]
-                DoubleHeightOn ^= 1
-                if DoubleHeightOn:
+                _DoubleHeightOn ^= 1
+                if _DoubleHeightOn:
                     LegLiftHeight = 80
                 else:
                     LegLiftHeight = 50
-                    # endif
+                # endif
             # endif
 
             # Double Travel Length
             if (DualShock[2] & 0x02 == 0) and LastButton[1] & 0x02:  # R2 Button test bit1
                 # sound p9, [50\4000]
-                DoubleTravelOn ^= 1
+                _DoubleTravelOn ^= 1
             # endif
 
             #  Switch between Walk method 1 and Walk method 2
             if (DualShock[1] & 0x04 == 0) and LastButton[0] & 0x04:  # R3 Button test bit2
                 # sound p9, [50\4000]
-                WalkMethod ^= 1
+                _WalkMethod ^= 1
             # endif
 
+            print("ControlInput: _WalkMethod=%d" % _WalkMethod)
+
             # Walking
-            if WalkMethod:  # (Walk Methode)
+            if _WalkMethod == 1:  # (Walk Methode)
                 TravelLengthZ = (DualShock[4] - 128)  # Right Stick Up/Down
             else:
                 TravelLengthX = -(DualShock[5] - 128)
                 TravelLengthZ = (DualShock[6] - 128)
             # endif
 
-            if DoubleTravelOn == 0:  # (Double travel length)
+            if _DoubleTravelOn == 0:  # (Double travel length)
                 TravelLengthX /= 2
                 TravelLengthZ /= 2
             # endif
 
             TravelRotationY = -(DualShock[3] - 128) / 4  # Right Stick Left/Right
+            print("ControlInput: TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (TravelLengthX, TravelLengthZ, TravelRotationY))
+            print("ControlInput: _DoubleTravelOn=%d" % (_DoubleTravelOn))            
         # endif
 
         # [Translate functions]
         # BodyYShift = 0
-        if ControlMode == TranslateMode:
+        if _ControlMode == TranslateMode:
             BodyPosX = (DualShock[5] - 128) / 2
             BodyPosZ = -(DualShock[6] - 128) / 3
             BodyRotY = (DualShock[3] - 128) / 6
@@ -388,7 +406,7 @@ def ControlInput():
         # endif
 
         # [Rotate functions]
-        if ControlMode == RotateMode:
+        if _ControlMode == RotateMode:
             BodyRotX = (DualShock[6] - 128) / 8
             BodyRotY = (DualShock[3] - 128) / 6
             BodyRotZ = (DualShock[5] - 128) / 8
@@ -396,7 +414,7 @@ def ControlInput():
         # endif
 
         # [Single leg functions]
-        if ControlMode == SingleLegMode:
+        if _ControlMode == SingleLegMode:
 
             # Switch leg for single leg control
             if (DualShock[1] & 0x01 == 0) and LastButton[0] & 0x01:  # Select Button test bit0
@@ -405,11 +423,11 @@ def ControlInput():
                     SelectedLeg += 1
                 else:
                     SelectedLeg = 0
-                    # endif
+                # endif
             # endif
 
             # Single Leg Mode
-            if ControlMode == SingleLegMode:
+            if _ControlMode == SingleLegMode:
                 SLLegX = (DualShock[5] - 128) / 2  # Left Stick Right/Left
                 SLLegY = (DualShock[4] - 128) / 10  # Right Stick Up/Down
                 SLLegZ = (DualShock[6] - 128) / 2  # Left Stick Up/Down
@@ -419,11 +437,11 @@ def ControlInput():
             if (DualShock[2] & 0x02 == 0) and LastButton[1] & 0x02:  # R2 Button test bit1
                 # sound p9, [50\4000]
                 SLHold ^= 1
-                # endif
+            # endif
         # endif
 
         # [Single leg functions]
-        if ControlMode == GPPlayerMode:
+        if _ControlMode == GPPlayerMode:
 
             # Switch between sequences
             if (DualShock[1] & 0x01 == 0) and LastButton[0] & 0x01:  # Select Button test bit0
@@ -434,30 +452,30 @@ def ControlInput():
                     else:
                         # Sound P9,[50\4000, 50\4500]
                         GPSeq = 0
-                        # endif
-                        # endif
+                    # endif
+                # endif
             # endif
 
             # Start Sequence
             if (DualShock[2] & 0x02 == 0) and LastButton[1] & 0x02:  # R2 Button test bit1
                 GPStart = 1
-                # endif
+            # endif
         # endif
 
         # Calculate walking time delay
-        InputTimeDelay = 128 - min(abs((DualShock[5] - 128)), abs((DualShock[6] - 128)), abs((DualShock[3] - 128)))
+        InputTimeDelay = 128 - max(abs((DualShock[5] - 128)), abs((DualShock[6] - 128)), abs((DualShock[3] - 128)))
 
     # endif
 
     # Calculate BodyPosY
-    BodyPosY = min((BodyYOffset + BodyYShift), 0)
+    BodyPosY = max((BodyYOffset + BodyYShift), 0)
     print("ControlInput: BodyPosY=%s" % BodyPosY)
 
     # Store previous state
     LastButton[0] = DualShock[1]
     LastButton[1] = DualShock[2]
     print("ControlInput: LastButton[0]=%0x, LastButton[1]=%0x\n" % (LastButton[0], LastButton[1]))
-    return
+    return TravelLengthX, TravelLengthZ, TravelRotationY
 
 
 # --------------------------------------------------------------------
