@@ -1,5 +1,9 @@
 from IkRoutines import GaitPosX, GaitPosY, GaitPosZ, GaitRotY
 
+import logging
+
+log = logging.getLogger(__name__)
+
 # [CONSTANTS]
 cRR = 0
 cRM = 1
@@ -40,7 +44,7 @@ def InitGait():
     GaitStep = 1
     # fall through to GaitSelect
     GaitSelect()
-    print "InitGait: GaitType=%d, legLiftHeight=%d, GaitStep=%d, NomGaitSpeed=%d" % (GaitType, LegLiftHeight, GaitStep, NomGaitSpeed)
+    log.debug("InitGait: GaitType=%d, legLiftHeight=%d, GaitStep=%d, NomGaitSpeed=%d" % (GaitType, LegLiftHeight, GaitStep, NomGaitSpeed))
     return
 
 
@@ -163,7 +167,7 @@ def GaitSelect():
         StepsInGait = 18
         NomGaitSpeed = 85
 
-    print "GaitSelect: GaitType=%d" % GaitType
+    log.debug("GaitSelect: GaitType=%d" % GaitType)
     return
 
 
@@ -171,6 +175,7 @@ def GaitSelect():
 # [GAIT Sequence]
 def GaitSeq(TravelLengthX, TravelLengthZ, TravelRotationY):
 
+    log.debug("GaitSeq: TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (TravelLengthX, TravelLengthZ, TravelRotationY))
     # Calculate Gait sequence
     LastLeg = 0  # TRUE when the current leg is the last leg of the sequence
     for LegIndex in range(0, 6):    # for all legs
@@ -178,6 +183,8 @@ def GaitSeq(TravelLengthX, TravelLengthZ, TravelRotationY):
             LastLeg = 1
 
         (TravelLengthX, TravelLengthZ, TravelRotationY) = Gait(LegIndex, LastLeg, TravelLengthX, TravelLengthZ, TravelRotationY)
+    
+    log.debug("GaitSeq: TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (TravelLengthX, TravelLengthZ, TravelRotationY))
     return TravelLengthX, TravelLengthZ, TravelRotationY
 
 
@@ -186,12 +193,12 @@ def GaitSeq(TravelLengthX, TravelLengthZ, TravelRotationY):
 def Gait(GaitCurrentLegNr, LastLeg, TravelLengthX, TravelLengthZ, TravelRotationY):
     global GaitInMotion, GaitStep
 
-    print("Gait: TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (TravelLengthX, TravelLengthZ, TravelRotationY))
+    log.debug("Gait: TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (TravelLengthX, TravelLengthZ, TravelRotationY))
     # Check IF the Gait is in motion
     GaitInMotion = ((abs(TravelLengthX) > cTravelDeadZone)
                     or (abs(TravelLengthZ) > cTravelDeadZone)
                     or (abs(TravelRotationY) > cTravelDeadZone))
-    print("Gait: GaitInMotion=%d" % GaitInMotion)
+    log.debug("Gait: GaitInMotion=%d" % GaitInMotion)
 
     # Clear values under the cTravelDeadZone
     if GaitInMotion == 0:
@@ -199,7 +206,7 @@ def Gait(GaitCurrentLegNr, LastLeg, TravelLengthX, TravelLengthZ, TravelRotation
         TravelLengthZ = 0
         TravelRotationY = 0
 
-    print("Gait: TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (TravelLengthX, TravelLengthZ, TravelRotationY))
+    log.debug("Gait: TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (TravelLengthX, TravelLengthZ, TravelRotationY))
 
     # Leg middle up position
     # Gait in motion														  Gait NOT in motion, return to home position

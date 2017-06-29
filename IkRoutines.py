@@ -237,7 +237,7 @@ def CalcIK(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBa
     log.debug("CalcIK: FemurAngle1=[%s]" % ", ".join(map(lambda x: str(x), FemurAngle1)))
     log.debug("CalcIK: TibiaAngle1=[%s]" % ", ".join(map(lambda x: str(x), TibiaAngle1)))
 
-    return
+    return CoxaAngle1, FemurAngle1, TibiaAngle1
 
 
 # --------------------------------------------------------------------

@@ -43,6 +43,7 @@ import Servo
 import SingleLeg
 import time
 import logging
+from IkRoutines import FemurAngle1, TibiaAngle1, CoxaAngle1
 # --------------------------------------------------------------------
 # [CONSTANTS]
 
@@ -74,7 +75,7 @@ Eyes = None  # Eyes output
 # [VARIABLES]
 SpeedControl        = 0  # Adjustible Delay
 
-
+log = logging.getLogger(__name__)
 # ====================================================================
 # [INIT]
 def Init():
@@ -87,14 +88,14 @@ def Init():
     Eyes = 0
   
     GPEnable = Servo.InitServos()  		# Tars Init Positions
-    print "InitServos: GPEnable=%d" % GPEnable
+    log.info("InitServos: GPEnable=%d" % GPEnable)
     SingleLeg.InitSingleLeg()
     IkRoutines.InitIK()
     Gait.InitGait()
 
     # Initialize Controller
     success = PhoenixControlPs2.InitController()
-    print "InitController: success=%s" % success
+    log.info("InitController: success=%s" % success)
     if not success:
         quit()
         
@@ -135,17 +136,16 @@ def MainLoop():
         (TravelLengthX, TravelLengthZ, TravelRotationY) = Gait.GaitSeq(TravelLengthX, TravelLengthZ, TravelRotationY)
 
         # Balance calculations
-        (TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal) \
-            = Balance.CalcBalance()
+        (TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal) = Balance.CalcBalance()
 
         # calculate inverse kinematic
-        IkRoutines.CalcIK(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal)
+        (CoxaAngle1, FemurAngle1, TibiaAngle1) = IkRoutines.CalcIK(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal)
 
         # Check mechanical limits
-        Servo.CheckAngles()
+        (CoxaAngle1, FemurAngle1, TibiaAngle1) = Servo.CheckAngles(CoxaAngle1, FemurAngle1, TibiaAngle1)
 
         # Drive Servos
-        Eyes = Servo.ServoDriverMain(Eyes, PhoenixControlPs2.HexOn, PhoenixControlPs2.Prev_HexOn, PhoenixControlPs2.InputTimeDelay, SpeedControl, TravelLengthX, TravelLengthZ, TravelRotationY)
+        Eyes = Servo.ServoDriverMain(Eyes, PhoenixControlPs2.HexOn, PhoenixControlPs2.Prev_HexOn, PhoenixControlPs2.InputTimeDelay, SpeedControl, TravelLengthX, TravelLengthZ, TravelRotationY, CoxaAngle1, FemurAngle1, TibiaAngle1)
     
         # Store previous HexOn State
         if PhoenixControlPs2.HexOn:
@@ -202,6 +202,6 @@ def WriteOutputs():
 
 # --------------------------------------------------------------------
 # [Entry point]
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 Init()
 MainLoop()

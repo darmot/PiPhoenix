@@ -62,8 +62,11 @@
 # 	- R2			Start Sequence
 # 
 # ====================================================================
-#import wiringpi
+import wiringpi
 from Gait import cTravelDeadZone, cRF, GaitSelect, LegLiftHeight, GaitType
+import logging
+
+log = logging.getLogger(__name__)
 
 # [CONSTANTS]
 WalkMode = 0
@@ -123,13 +126,13 @@ def InitController():
     _attempts = 10
         
     if not _IsWiringpiInitialised:
-        print "InitController: trying to initialise wiringpi"
+        log.debug("InitController: trying to initialise wiringpi")
         _IsWiringpiInitialised = True
         if wiringpi.wiringPiSetupGpio() == -1:
-            print ("Unable to start wiringPi\n")
+            log.debug ("Unable to start wiringPi\n")
             return False
 
-    print "InitController: setting up pins"
+    log.debug("InitController: setting up pins")
     _commandPin = wiringpi.physPinToGpio(PS2CMD)
     _dataPin = wiringpi.physPinToGpio(PS2DAT)
     _clkPin = wiringpi.physPinToGpio(PS2CLK)
@@ -141,9 +144,9 @@ def InitController():
     wiringpi.pinMode(_attnPin, wiringpi.OUTPUT)  # Set attention pin to output
     wiringpi.pinMode(_clkPin, wiringpi.OUTPUT)  # Set clock pin to output
 
-    print "InitController: trying to set mode"
+    log.debug("InitController: trying to set mode")
     while DS2Mode != PadMode and _attempts > 0:
-        print "InitController: attempt #",11-_attempts
+        log.debug("InitController: attempt #" + str(11-_attempts))
         wiringpi.digitalWrite(_clkPin, 1)  # high PS2CLK
 
         LastButton[0] = 255
@@ -158,7 +161,7 @@ def InitController():
         DS2Mode = buf[1]
         wiringpi.delay(1)  # pause 1
 
-        print("InitController: DS2Mode=0x%0x, PadMode=0x%0x" % (DS2Mode, PadMode))
+        log.debug("InitController: DS2Mode=0x%0x, PadMode=0x%0x" % (DS2Mode, PadMode))
         transmitBytes([0x01, 0x43, 0x00, 0x01, 0x00])  # CONFIG_MODE_ENTER0
         transmitBytes([0x01, 0x44, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x00])  # SET_MODE_AND_LOCK
         transmitBytes([0x01, 0x4F, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x00, 0x00])  # SET_DS2_NATIVE_MODE
@@ -189,22 +192,22 @@ def ControlInput(TravelLengthX, TravelLengthZ, TravelRotationY):
         _ControlMode, BalanceMode, SpeedControl, GaitType, _DoubleTravelOn, _WalkMethod, \
         _DoubleHeightOn, GPStart, SLHold, GPSeq, LegLiftHeight, InputTimeDelay, SLLegX, SLLegY, SLLegZ
 
-    print("ControlInput: LastButton[0]=%0x, LastButton[1]=%0x\n" % (LastButton[0], LastButton[1]))
+    log.debug("ControlInput: LastButton[0]=%0x, LastButton[1]=%0x\n" % (LastButton[0], LastButton[1]))
 
     received1 = transmitBytes([0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
-    print("ControlInput: received1=[%s]" % ', '.join(map(lambda x: "%0x" % x, received1)))
+    log.debug("ControlInput: received1=[%s]" % ', '.join(map(lambda x: "%0x" % x, received1)))
     if (received1[1] == 0x79):
         received2 = transmitBytes([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
-        print("ControlInput: received2=[%s]" % ', '.join(map(lambda x: "%0x" % x, received2)))
+        log.debug("ControlInput: received2=[%s]" % ', '.join(map(lambda x: "%0x" % x, received2)))
         
     DualShock = received1[2:9];
     wiringpi.delay(10)
     
-    print("ControlInput: DualShock[0:7]=[%s]" % ', '.join(map(lambda x: "%0x" % x, DualShock)))
+    log.debug("ControlInput: DualShock[0:7]=[%s]" % ', '.join(map(lambda x: "%0x" % x, DualShock)))
 
     #  Switch bot on/off
     if (DualShock[1] & 0x08 == 0) and (LastButton[0] & 0x08 != 0):  # Start Button test bit3
-        print("ControlInput: Start button: HexOn=%d, Prev_HexOn=%d\n" % (HexOn, Prev_HexOn))
+        log.debug("ControlInput: Start button: HexOn=%d, Prev_HexOn=%d\n" % (HexOn, Prev_HexOn))
         if HexOn:
             # Turn off
             BodyPosX = 0
@@ -227,7 +230,7 @@ def ControlInput(TravelLengthX, TravelLengthZ, TravelRotationY):
         # endif
     # endif
 
-    print("ControlInput: HexOn=%s" % HexOn)
+    log.debug("ControlInput: HexOn=%s" % HexOn)
     
     if HexOn:
         # [SWITCH MODES]
@@ -334,7 +337,7 @@ def ControlInput(TravelLengthX, TravelLengthZ, TravelRotationY):
 
         # [Walk functions]
         if _ControlMode == WalkMode:
-            print("ControlInput: _ControlMode == WalkMode")
+            log.debug("ControlInput: _ControlMode == WalkMode")
             # Switch gates
             if ((DualShock[1] & 0x01 == 0) and LastButton[0] & 0x01  # Select Button test bit0
                 and abs(TravelLengthX) < cTravelDeadZone  # No movement
@@ -376,7 +379,7 @@ def ControlInput(TravelLengthX, TravelLengthZ, TravelRotationY):
                 _WalkMethod ^= 1
             # endif
 
-            print("ControlInput: _WalkMethod=%d" % _WalkMethod)
+            log.debug("ControlInput: _WalkMethod=%d" % _WalkMethod)
 
             # Walking
             if _WalkMethod == 1:  # (Walk Methode)
@@ -392,8 +395,8 @@ def ControlInput(TravelLengthX, TravelLengthZ, TravelRotationY):
             # endif
 
             TravelRotationY = -(DualShock[3] - 128) / 4  # Right Stick Left/Right
-            print("ControlInput: TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (TravelLengthX, TravelLengthZ, TravelRotationY))
-            print("ControlInput: _DoubleTravelOn=%d" % (_DoubleTravelOn))            
+            log.debug("ControlInput: TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (TravelLengthX, TravelLengthZ, TravelRotationY))
+            log.debug("ControlInput: _DoubleTravelOn=%d" % (_DoubleTravelOn))            
         # endif
 
         # [Translate functions]
@@ -469,12 +472,12 @@ def ControlInput(TravelLengthX, TravelLengthZ, TravelRotationY):
 
     # Calculate BodyPosY
     BodyPosY = max((BodyYOffset + BodyYShift), 0)
-    print("ControlInput: BodyPosY=%s" % BodyPosY)
+    log.debug("ControlInput: BodyPosY=%s" % BodyPosY)
 
     # Store previous state
     LastButton[0] = DualShock[1]
     LastButton[1] = DualShock[2]
-    print("ControlInput: LastButton[0]=%0x, LastButton[1]=%0x\n" % (LastButton[0], LastButton[1]))
+    log.debug("ControlInput: LastButton[0]=%0x, LastButton[1]=%0x\n" % (LastButton[0], LastButton[1]))
     return TravelLengthX, TravelLengthZ, TravelRotationY
 
 

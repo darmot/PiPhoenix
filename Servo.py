@@ -16,7 +16,6 @@ from Config_Ch3r import cRRCoxaPin, cRMCoxaPin, cRFCoxaPin, cLRCoxaPin, cLMCoxaP
     cSSC_BAUD
 import Gait
 from IkRoutines import GaitPosX, GaitPosY, GaitPosZ, GaitRotY, BalanceMode, \
-    CoxaAngle1, FemurAngle1, TibiaAngle1, \
     LegPosX, LegPosY, LegPosZ, \
     cInitPosX, cInitPosY, cInitPosZ
 from SingleLeg import AllDown
@@ -63,7 +62,7 @@ def StartTimer():
 
 # --------------------------------------------------------------------
 # [CHECK ANGLES] Checks the mechanical limits of the servos
-def CheckAngles():
+def CheckAngles(CoxaAngle1, FemurAngle1, TibiaAngle1):
     log.debug("CheckAngles: cCoxaMin1=[%s]" % ", ".join(map(lambda x: str(x), cCoxaMin1)))
     log.debug("CheckAngles: cCoxaMax1=[%s]" % ", ".join(map(lambda x: str(x), cCoxaMax1)))
     log.debug("CheckAngles: cFemurMin1=[%s]" % ", ".join(map(lambda x: str(x), cFemurMin1)))
@@ -80,17 +79,20 @@ def CheckAngles():
     log.debug("CheckAngles: FemurAngle1=[%s]" % ", ".join(map(lambda x: str(x), FemurAngle1)))
     log.debug("CheckAngles: TibiaAngle1=[%s]" % ", ".join(map(lambda x: str(x), TibiaAngle1)))
     
-    return
+    return (CoxaAngle1, FemurAngle1, TibiaAngle1)
 
 
 # --------------------------------------------------------------------
 # [SERVO DRIVER MAIN] Updates the positions of the servos
-def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl, TravelLengthX, TravelLengthZ, TravelRotationY):
+def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl, TravelLengthX, TravelLengthZ, TravelRotationY, CoxaAngle1, FemurAngle1, TibiaAngle1):
     global lTimerEnd, PrevSSCTime, SSCTime, CycleTime
 
     log.debug("ServoDriveMain: HexOn=%s, Prev_HexOn=%s\n" % (HexOn, Prev_HexOn))
 
     if HexOn:
+        
+        log.debug("ServoDriverMain: switched on")
+        
         if HexOn and Prev_HexOn == 0:
             sound([(60, 4000), (80, 4500), (100, 5000)])
             Eyes = 1
@@ -112,7 +114,7 @@ def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl, Trave
         else:  # Movement speed excl. Walking
             SSCTime = 200 + SpeedControl
 
-            # Sync BAP with SSC while walking to ensure the prev is completed before sending the next one
+        # Sync BAP with SSC while walking to ensure the prev is completed before sending the next one
         if (GaitPosX[Gait.cRF] or GaitPosX[Gait.cRM] or GaitPosX[Gait.cRR] or GaitPosX[Gait.cLF] or GaitPosX[Gait.cLM] or GaitPosX[Gait.cLR] or
                 GaitPosY[Gait.cRF] or GaitPosY[Gait.cRM] or GaitPosY[Gait.cRR] or GaitPosY[Gait.cLF] or GaitPosY[Gait.cLM] or GaitPosY[Gait.cLR] or
                 GaitPosZ[Gait.cRF] or GaitPosZ[Gait.cRM] or GaitPosZ[Gait.cRR] or GaitPosZ[Gait.cLF] or GaitPosZ[Gait.cLM] or GaitPosZ[Gait.cLR] or
@@ -127,14 +129,16 @@ def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl, Trave
             # Min 1 ensures that there always is a value in the  pause command
             pause(max((PrevSSCTime - CycleTime - 45), 1))
 
-        PrevSSCTime = ServoDriver(SSCTime)
+        PrevSSCTime = ServoDriver(SSCTime, CoxaAngle1, FemurAngle1, TibiaAngle1)
 
     else:
-
+        
+        log.debug("ServoDriverMain: switched off")
+        
         # Turn the bot off
         if Prev_HexOn or not AllDown:
             SSCTime = 600
-            PrevSSCTime = ServoDriver(SSCTime)
+            PrevSSCTime = ServoDriver(SSCTime, CoxaAngle1, FemurAngle1, TibiaAngle1)
             sound([(100, 5000), (80, 4500), (60, 4000)])
             pause(600)
         else:
@@ -146,7 +150,7 @@ def ServoDriverMain(Eyes, HexOn, Prev_HexOn, InputTimeDelay, SpeedControl, Trave
 
 # --------------------------------------------------------------------
 # [SERVO DRIVER] Updates the positions of the servos
-def ServoDriver(SSCTime):
+def ServoDriver(SSCTime, CoxaAngle1, FemurAngle1, TibiaAngle1):
 
     # Update Right Legs
     for LegIndex in range(3):
@@ -170,6 +174,7 @@ def ServoDriver(SSCTime):
 # --------------------------------------------------------------------
 # [FREE SERVOS] Frees all the servos
 def FreeServos():
+    log.debug("FreeServos:")
     for LegIndex in range(32):
         serout(["#", LegIndex, "P0"])
 
@@ -259,7 +264,7 @@ def pause(milliseconds):
 
 # --------------------------------------------------------------------
 def serout(outputData):
-    log.debug(outputData)
+    log.debug("serout:" + str(outputData))
     x = reduce(lambda accu, d: accu + str(d), outputData)
     log.debug("serout: x=%s" % x)
     ser.write(x)
