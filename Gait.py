@@ -190,7 +190,7 @@ def GaitSeq(TravelLengthX, TravelLengthZ, TravelRotationY):
 
 # --------------------------------------------------------------------
 # [GAIT]
-def Gait(GaitCurrentLegNr, LastLeg, TravelLengthX, TravelLengthZ, TravelRotationY):
+def Gait(LegNr, LastLeg, TravelLengthX, TravelLengthZ, TravelRotationY):
     global GaitInMotion, GaitStep
 
     log.debug("Gait: TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (TravelLengthX, TravelLengthZ, TravelRotationY))
@@ -206,65 +206,64 @@ def Gait(GaitCurrentLegNr, LastLeg, TravelLengthX, TravelLengthZ, TravelRotation
         TravelLengthZ = 0
         TravelRotationY = 0
 
-    log.debug("Gait: TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (TravelLengthX, TravelLengthZ, TravelRotationY))
+    log.debug("Gait: LegNr=%d, LastLeg=%d, TravelLengthX=%d, TravelLengthZ=%d, TravelRotationY=%d" % (LegNr, LastLeg, TravelLengthX, TravelLengthZ, TravelRotationY))
 
     # Leg middle up position
     # Gait in motion														  Gait NOT in motion, return to home position
-    if ((GaitInMotion and (NrLiftedPos == 1 or NrLiftedPos == 3) and GaitStep == GaitLegNr[GaitCurrentLegNr])
-        or (not GaitInMotion
-            and GaitStep == GaitLegNr[GaitCurrentLegNr]
-            and ((abs(GaitPosX[GaitCurrentLegNr]) > 2)
-                 and (abs(GaitPosZ[GaitCurrentLegNr]) > 2)
-                 or (abs(GaitRotY[GaitCurrentLegNr]) > 2)))):   # Up
-        GaitPosX[GaitCurrentLegNr] = 0
-        GaitPosY[GaitCurrentLegNr] = -LegLiftHeight
-        GaitPosZ[GaitCurrentLegNr] = 0
-        GaitRotY[GaitCurrentLegNr] = 0
+    if ((GaitInMotion and GaitStep == GaitLegNr[LegNr] and (NrLiftedPos == 1 or NrLiftedPos == 3))
+        or (not GaitInMotion and GaitStep == GaitLegNr[LegNr]
+            and ((abs(GaitPosX[LegNr]) > 2) or (abs(GaitPosZ[LegNr]) > 2) or (abs(GaitRotY[LegNr]) > 2)))):   # Up
+        log.debug("Gait: Case 1")
+        GaitPosX[LegNr] = 0
+        GaitPosY[LegNr] = -LegLiftHeight
+        GaitPosZ[LegNr] = 0
+        GaitRotY[LegNr] = 0
 
     else:
         # Optional Half heigth Rear
-        if (((NrLiftedPos == 2 and GaitStep == GaitLegNr[GaitCurrentLegNr])
-                or (NrLiftedPos == 3
-                    and (GaitStep == GaitLegNr[GaitCurrentLegNr] - 1
-                         or GaitStep == GaitLegNr[GaitCurrentLegNr] + (StepsInGait - 1))))
+        if (((NrLiftedPos == 2 and GaitStep == GaitLegNr[LegNr])
+            or (NrLiftedPos == 3 and (GaitStep == GaitLegNr[LegNr] - 1 or GaitStep == GaitLegNr[LegNr] + (StepsInGait - 1))))
                 and GaitInMotion):
-            GaitPosX[GaitCurrentLegNr] = -TravelLengthX/2
-            GaitPosY[GaitCurrentLegNr] = -LegLiftHeight/(HalfLiftHeigth+1)
-            GaitPosZ[GaitCurrentLegNr] = -TravelLengthZ/2
-            GaitRotY[GaitCurrentLegNr] = -TravelRotationY/2
+            log.debug("Gait: Case 2")
+            GaitPosX[LegNr] = -TravelLengthX/2
+            GaitPosY[LegNr] = -LegLiftHeight/(HalfLiftHeigth+1)
+            GaitPosZ[LegNr] = -TravelLengthZ/2
+            GaitRotY[LegNr] = -TravelRotationY/2
 
         else:
             # Optional half heigth front
-            if ((NrLiftedPos >= 2)
-                    and (GaitStep == GaitLegNr[GaitCurrentLegNr] + 1
-                         or GaitStep == GaitLegNr[GaitCurrentLegNr]-(StepsInGait-1))
+            if ((NrLiftedPos >= 2) and (GaitStep == GaitLegNr[LegNr] + 1 or GaitStep == GaitLegNr[LegNr]-(StepsInGait-1))
                     and GaitInMotion):
-                GaitPosX[GaitCurrentLegNr] = TravelLengthX/2
-                GaitPosY[GaitCurrentLegNr] = -LegLiftHeight/(HalfLiftHeigth+1)
-                GaitPosZ[GaitCurrentLegNr] = TravelLengthZ/2
-                GaitRotY[GaitCurrentLegNr] = TravelRotationY/2
+                log.debug("Gait: Case 3")
+                GaitPosX[LegNr] = TravelLengthX/2
+                GaitPosY[LegNr] = -LegLiftHeight/(HalfLiftHeigth+1)
+                GaitPosZ[LegNr] = TravelLengthZ/2
+                GaitRotY[LegNr] = TravelRotationY/2
 
             else:
                 # Leg front down position
-                if (GaitStep == GaitLegNr[GaitCurrentLegNr] + NrLiftedPos
-                        or GaitStep == GaitLegNr[GaitCurrentLegNr] - (StepsInGait-NrLiftedPos)) \
-                        and GaitPosY[GaitCurrentLegNr] < 0:
-                    GaitPosX[GaitCurrentLegNr] = TravelLengthX/2
-                    GaitPosZ[GaitCurrentLegNr] = TravelLengthZ/2
-                    GaitRotY[GaitCurrentLegNr] = TravelRotationY/2
-                    GaitPosY[GaitCurrentLegNr] = 0  # Only move leg down at once if terrain adaption is turned off
+                if ((GaitStep == GaitLegNr[LegNr] + NrLiftedPos or GaitStep == GaitLegNr[LegNr] - (StepsInGait-NrLiftedPos)) 
+                    and GaitPosY[LegNr] < 0):
+                    log.debug("Gait: Case 4")
+                    GaitPosX[LegNr] = TravelLengthX/2
+                    GaitPosZ[LegNr] = TravelLengthZ/2
+                    GaitRotY[LegNr] = TravelRotationY/2
+                    GaitPosY[LegNr] = 0  # Only move leg down at once if terrain adaption is turned off
 
                 # Move body forward
                 else:
-                    GaitPosX[GaitCurrentLegNr] = GaitPosX[GaitCurrentLegNr] - (TravelLengthX/TLDivFactor)
-                    GaitPosY[GaitCurrentLegNr] = 0
-                    GaitPosZ[GaitCurrentLegNr] = GaitPosZ[GaitCurrentLegNr] - (TravelLengthZ/TLDivFactor)
-                    GaitRotY[GaitCurrentLegNr] = GaitRotY[GaitCurrentLegNr] - (TravelRotationY/TLDivFactor)
+                    log.debug("Gait: Case 5")
+                    GaitPosX[LegNr] = GaitPosX[LegNr] - (TravelLengthX/TLDivFactor)
+                    GaitPosY[LegNr] = 0
+                    GaitPosZ[LegNr] = GaitPosZ[LegNr] - (TravelLengthZ/TLDivFactor)
+                    GaitRotY[LegNr] = GaitRotY[LegNr] - (TravelRotationY/TLDivFactor)
 
     # Advance to the next step
     if LastLeg:     # The last leg in this step
         GaitStep = GaitStep+1
+        log.debug("Gait: LastLeg=True, GaitStep=%d" % GaitStep)
         if GaitStep > StepsInGait:
             GaitStep = 1
+            log.debug("Gait: GaiStep>StepsInGait, GaitStep=%d" % GaitStep)
 
     return TravelLengthX, TravelLengthZ, TravelRotationY

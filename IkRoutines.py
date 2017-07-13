@@ -207,7 +207,7 @@ def CalcIK(TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBa
                    GaitRotY[LegIndex], LegIndex)
         (IKSolution, IKSolutionWarning, IKSolutionError,
          CoxaAngle1[LegIndex], FemurAngle1[LegIndex], TibiaAngle1[LegIndex]) = \
-            LegIK(LegPosX[LegIndex] - BodyPosX + BodyIKPosX - (GaitPosX[LegIndex] - TotalTransX),
+            LegIK(LegPosX[LegIndex] - BodyPosX + BodyIKPosX - GaitPosX[LegIndex] + TotalTransX,
                   LegPosY[LegIndex] + BodyPosY - BodyIKPosY + GaitPosY[LegIndex] - TotalTransY,
                   LegPosZ[LegIndex] + BodyPosZ - BodyIKPosZ + GaitPosZ[LegIndex] - TotalTransZ,
                   cCoxaAngle1[LegIndex], IKSolution, IKSolutionWarning, IKSolutionError)
