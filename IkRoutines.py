@@ -1,5 +1,6 @@
 from Config_Ch3r import *
-from Trig import GetSinCos, GetAtan2, GetArcCos, c2DEC, c4DEC, c1DEC
+from Trig import GetSinCos, GetBoogTan, TOFLOAT, TOINT
+import math
 import logging
 
 log = logging.getLogger(__name__)
@@ -17,15 +18,9 @@ cInitPosY = [cRRInitPosY, cRMInitPosY, cRFInitPosY, cLRInitPosY, cLMInitPosY, cL
 cInitPosZ = [cRRInitPosZ, cRMInitPosZ, cRFInitPosZ, cLRInitPosZ, cLMInitPosZ, cLFInitPosZ]
 
 # Body Inverse Kinematics
-BodyRotX = None  # Global Input pitch of the body
-BodyRotY = None  # Global Input rotation of the body
-BodyRotZ = None  # Global Input roll of the body
-sinA4 = None  # Sin buffer for BodyRotX calculations
-cosA4 = None  # Cos buffer for BodyRotX calculations
-sinB4 = None  # Sin buffer for BodyRotX calculations
-cosB4 = None  # Cos buffer for BodyRotX calculations
-sinG4 = None  # Sin buffer for BodyRotZ calculations
-cosG4 = None  # Cos buffer for BodyRotZ calculations
+BodyRotX = 0  # Global Input pitch of the body
+BodyRotY = 0  # Global Input rotation of the body
+BodyRotZ = 0  # Global Input roll of the body
 
 # Gait
 GaitPosX = [0] * 6  # Array containing Relative X position corresponding to the Gait
@@ -34,9 +29,9 @@ GaitPosZ = [0] * 6  # Array containing Relative Z position corresponding to the 
 GaitRotY = [0] * 6  # Array containing Relative Y rotation corresponding to the Gait
 
 # Body position
-BodyPosX = None  # Global Input for the position of the body
-BodyPosY = None
-BodyPosZ = None
+BodyPosX = 0  # Global Input for the position of the body
+BodyPosY = 0
+BodyPosZ = 0
 
 LegPosX = [None] * 6  # Actual X Posion of the Leg
 LegPosY = [None] * 6  # Actual Y Posion of the Leg
@@ -86,11 +81,9 @@ def BodyIK(PosX, PosZ, PosY, TotalYBal, TotalZBal, TotalXBal, RotationY, BodyIKL
     # Sinus Alfa = sinA, cosinus Alfa = cosA. and so on...
 
     # First calculate sinus and cosinus for each rotation:
-    (SinG4, CosG4) = GetSinCos((BodyRotX + TotalXBal) * c1DEC)
-
-    (SinB4, CosB4) = GetSinCos((BodyRotZ + TotalZBal) * c1DEC)
-
-    (SinA4, CosA4) = GetSinCos((BodyRotY + RotationY + TotalYBal) * c1DEC)
+    (SinG, CosG) = GetSinCos(TOFLOAT(BodyRotX + TotalXBal))
+    (SinB, CosB) = GetSinCos(TOFLOAT(BodyRotZ + TotalZBal))
+    (SinA, CosA) = GetSinCos(TOFLOAT(BodyRotY + RotationY + TotalYBal))
 
     # Calcualtion of rotation matrix:
     # BodyIKPosX = TotalX - (TotalX*CosA*CosB - TotalZ*CosB*SinA + PosY*SinB)
@@ -98,22 +91,9 @@ def BodyIK(PosX, PosZ, PosY, TotalYBal, TotalZBal, TotalXBal, RotationY, BodyIKL
     #                                                                                    - PosY*CosB*SinG)
     # BodyIKPosY = PosY   - (TotalX*SinA*SinG - TotalX*CosA*CosG*SinB + TotalZ*CosA*SinG + TotalZ*CosG*SinA*SinB
     #                                                                                    + PosY*CosB*CosG)
-    BodyIKPosX = (TotalX * c2DEC - (
-        TotalX * c2DEC * CosA4
-        / c4DEC * CosB4 / c4DEC - TotalZ * c2DEC * CosB4
-        / c4DEC * SinA4 / c4DEC + PosY * c2DEC * SinB4 / c4DEC)) / c2DEC
-    BodyIKPosZ = (TotalZ * c2DEC - (
-        TotalX * c2DEC * CosG4
-        / c4DEC * SinA4 / c4DEC + TotalX * c2DEC * CosA4
-        / c4DEC * SinB4 / c4DEC * SinG4 / c4DEC + TotalZ * c2DEC * CosA4
-        / c4DEC * CosG4 / c4DEC - TotalZ * c2DEC * SinA4
-        / c4DEC * SinB4 / c4DEC * SinG4 / c4DEC - PosY * c2DEC * CosB4 / c4DEC * SinG4 / c4DEC)) / c2DEC
-    BodyIKPosY = (PosY * c2DEC - (
-        TotalX * c2DEC * SinA4
-        / c4DEC * SinG4 / c4DEC - TotalX * c2DEC * CosA4
-        / c4DEC * CosG4 / c4DEC * SinB4 / c4DEC + TotalZ * c2DEC * CosA4
-        / c4DEC * SinG4 / c4DEC + TotalZ * c2DEC * CosG4
-        / c4DEC * SinA4 / c4DEC * SinB4 / c4DEC + PosY * c2DEC * CosB4 / c4DEC * CosG4 / c4DEC)) / c2DEC
+    BodyIKPosX = TotalX - TOINT(TOFLOAT(TotalX)*CosA*CosB - TOFLOAT(TotalZ)*CosB*SinA + TOFLOAT(PosY)*SinB)
+    BodyIKPosZ = TotalZ - TOINT(TOFLOAT(TotalX)*CosG*SinA + TOFLOAT(TotalX)*CosA*SinB*SinG + TOFLOAT(TotalZ)*CosA*CosG - TOFLOAT(TotalZ)*SinA*SinB*SinG - TOFLOAT(PosY)*CosB*SinG)
+    BodyIKPosY = PosY - TOINT(TOFLOAT(TotalX)*SinA*SinG - TOFLOAT(TotalX)*CosA*CosG*SinB + TOFLOAT(TotalZ)*CosA*SinG + TOFLOAT(TotalZ)*CosG*SinA*SinB + TOFLOAT(PosY)*CosB*CosG)
 
     log.debug("BodyIK: BodyIKPosX=%s, BodyIKPosY=%s, BodyIKPosZ=%s" % (BodyIKPosX, BodyIKPosY, BodyIKPosZ)) 
     return BodyIKPosX, BodyIKPosY, BodyIKPosZ
@@ -135,47 +115,47 @@ def LegIK(IKFeetPosX, IKFeetPosY, IKFeetPosZ, defaultCoxaAngle, IKSolution, IKSo
     log.debug("LegIK: IKFeetPosX=%s, IKFeetPosY=%s, IKFeetPosZ=%s" % (IKFeetPosX, IKFeetPosY, IKFeetPosZ))
     log.debug("LegIK: defaultCoxaAngle=%s" % defaultCoxaAngle)
     
-    # Calculate IKCoxaAngle and IKFeetPosXZ
-    (Atan4, XYhyp2) = GetAtan2(IKFeetPosX, IKFeetPosZ)
-    CoxaAngle = ((Atan4 * 180) / 3141) + defaultCoxaAngle
+    # Length between the Coxa and Feet
+    IKFeetPosXZ = TOINT(math.sqrt(TOFLOAT((IKFeetPosX*IKFeetPosX)+(IKFeetPosZ*IKFeetPosZ))))
 
-    # Length between the Coxa and tars (foot)
-    IKFeetPosXZ = XYhyp2 / c2DEC  # Diagonal direction from Input X and Z
+    # IKSW - Length between shoulder and wrist
+    IKSW = math.sqrt(TOFLOAT(((IKFeetPosXZ-cCoxaLength)*(IKFeetPosXZ-cCoxaLength))+(IKFeetPosY*IKFeetPosY)))
 
-    # Using GetAtan2 for solving IKA1 and IKSW
-    # IKA14 - Angle of the line S>W with respect to the ground in radians, decimals = 4
-    # IKSW2 - Length between Shoulder and Wrist, decimals = 2
-    (IKA14, IKSW2) = GetAtan2(IKFeetPosY, IKFeetPosXZ - cCoxaLength)
+    # IKA1 - Angle between SW line and the ground in rad
+    IKA1 = GetBoogTan(IKFeetPosXZ-cCoxaLength, IKFeetPosY)
 
     # IKA2 - Angle of the line S>W with respect to the femur in radians
-    Temp1 = (((cFemurLength * cFemurLength) - (cTibiaLength * cTibiaLength)) * c4DEC + (IKSW2 * IKSW2))
-    Temp2 = ((2 * cFemurLength) * c2DEC * IKSW2)
-
+    Temp1 = (((cFemurLength * cFemurLength) - (cTibiaLength * cTibiaLength)) + (IKSW * IKSW))
+    Temp2 = ((2 * cFemurLength) * IKSW)
     # Angle of the line S>W with respect to the femur in radians, decimals = 4
-    IKA24 = GetArcCos(Temp1 / (Temp2 / c4DEC))
+    IKA2 = math.acos(TOFLOAT(Temp1) / TOFLOAT(Temp2))
 
     # IKFemurAngle
-    FemurAngle = -(IKA14 + IKA24) * 180 / 3141 + 900
+    FemurAngle = (TOINT(((IKA1 + IKA2) * 180.0) / 3.141592)*-1)+90
 
     # IKTibiaAngle
-    Temp1 = (((cFemurLength * cFemurLength) + (cTibiaLength * cTibiaLength)) * c4DEC - (IKSW2 * IKSW2))
-    Temp2 = (2 * cFemurLength * cTibiaLength)
-    AngleRad4 = GetArcCos(Temp1 / Temp2)
-    TibiaAngle = -(900 - AngleRad4 * 180 / 3141)
+    Temp1 = (((cFemurLength*cFemurLength) + (cTibiaLength*cTibiaLength)) - (IKSW * IKSW))
+    Temp2 = (2*cFemurLength*cTibiaLength)
+    TibiaAngle = (90-TOINT((math.acos(TOFLOAT(Temp1) / TOFLOAT(Temp2)) * 180.0) / 3.141592)) * -1
 
-    # Set the Solution quality
-    if IKSW2 < (cFemurLength + cTibiaLength - 30) * c2DEC:
+    # IKCoxaAngle
+    BoogTan = GetBoogTan(IKFeetPosZ, IKFeetPosX)
+    CoxaAngle = TOINT((BoogTan*180.0) / 3.141592)
+
+    # Set the Solution quality    
+    if (IKSW < TOFLOAT(cFemurLength+cTibiaLength-30)):
         IKSolution = 1
     else:
-        if IKSW2 < (cFemurLength + cTibiaLength) * c2DEC:
+        if (IKSW < TOFLOAT(cFemurLength+cTibiaLength)):
             IKSolutionWarning = 1
         else:
-            IKSolutionError = 1
+            IKSolutionError = 1    
+        #ENDIF
+    #ENDIF        
 
     log.debug("LegIK: IKSolution=%s, IKSolutionWarning=%s, IKSolutionError=%s" % (IKSolution, IKSolutionWarning, IKSolutionError))
     log.debug("LegIK: CoxaAngle=%s, FemurAngle=%s, TibiaAngle=%s" % (CoxaAngle, FemurAngle, TibiaAngle))
     return IKSolution, IKSolutionWarning, IKSolutionError, CoxaAngle, FemurAngle, TibiaAngle
-
 
 # --------------------------------------------------------------------
 # [CALC INVERSE KINEMATIC] Calculates inverse kinematic

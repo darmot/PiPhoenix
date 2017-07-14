@@ -1,6 +1,9 @@
 from IkRoutines import cOffsetZ, cOffsetX, BalanceMode, LegPosX, LegPosY, LegPosZ, GaitPosX, GaitPosY, GaitPosZ, \
     cInitPosY
-from Trig import GetAtan2
+from Trig import GetBoogTan, TOINT
+import logging
+
+log = logging.getLogger(__name__)
 
 
 # --------------------------------------------------------------------
@@ -15,17 +18,17 @@ def BalCalcOneLeg(PosX, PosZ, PosY, TotalTransX, TotalTransY, TotalTransZ, Total
     TotalTransZ = TotalTransZ + TotalZ
     TotalTransX = TotalTransX + TotalX
 
-    (Atan4, XYhyp2) = GetAtan2(TotalX, TotalZ)
-    TotalYBal =  TotalYBal + (Atan4*180) / 31415
+    Atan = GetBoogTan(TotalX, TotalZ)
+    TotalYBal =  TotalYBal + TOINT((Atan*180.0) / 3.141592)
 
-    (Atan4, XYhyp2) = GetAtan2(TotalX, TotalY)
-    TotalZBal = TotalZBal + ((Atan4*180) / 31415) - 90  # Rotate balance circle 90 deg
+    Atan = GetBoogTan(TotalX, TotalY)
+    TotalZBal = TotalZBal + TOINT((Atan*180.0) / 3.141592)
 
-    (Atan4, XYhyp2) = GetAtan2(TotalZ, TotalY)
-    TotalXBal = TotalXBal + ((Atan4*180) / 31415) - 90  # Rotate balance circle 90 deg
+    Atan = GetBoogTan(TotalZ, TotalY)
+    TotalXBal = TotalXBal + TOINT((Atan*180.0) / 3.141592)
 
+    log.debug("BalCalcOneLeg: PosX=%s, PosZ=%s, TotalXTransZ=%s" % (PosX, PosY, PosZ, TotalTransZ)) 
     return TotalTransX, TotalTransY, TotalTransZ, TotalYBal, TotalZBal, TotalXBal
-
 
 # --------------------------------------------------------------------
 # [BalanceBody]

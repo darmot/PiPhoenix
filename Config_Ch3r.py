@@ -116,27 +116,27 @@ cLFOffsetZ       = -119    # Distance Z from center of the body to the Left Fron
 
 # --------------------------------------------------------------------
 # [START POSITIONS FEET]
-cRRInitPosX    = 52      # Start positions of the Right Rear leg
-cRRInitPosY    = 80
+cRRInitPosX    = 53      # Start positions of the Right Rear leg
+cRRInitPosY    = 25
 cRRInitPosZ    = 91
 
 cRMInitPosX    = 105      # Start positions of the Right Middle leg
-cRMInitPosY    = 80
+cRMInitPosY    = 25
 cRMInitPosZ    = 0
 
-cRFInitPosX    = 52      # Start positions of the Right Front leg
-cRFInitPosY    = 80
+cRFInitPosX    = 53      # Start positions of the Right Front leg
+cRFInitPosY    = 25
 cRFInitPosZ    = -91
 
-cLRInitPosX    = 52      # Start positions of the Left Rear leg
-cLRInitPosY    = 80
+cLRInitPosX    = 53      # Start positions of the Left Rear leg
+cLRInitPosY    = 25
 cLRInitPosZ    = 91
 
 cLMInitPosX    = 105      # Start positions of the Left Middle leg
-cLMInitPosY    = 80
+cLMInitPosY    = 25
 cLMInitPosZ    = 0
 
-cLFInitPosX    = 52      # Start positions of the Left Front leg
-cLFInitPosY    = 80
+cLFInitPosX    = 53      # Start positions of the Left Front leg
+cLFInitPosY    = 25
 cLFInitPosZ    = -91
 # --------------------------------------------------------------------
